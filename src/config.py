@@ -29,21 +29,28 @@ MILVUS_DB_PATH = os.getenv(
 )
 MILVUS_COLLECTION_NAME = "onboard_chunks"
 
-# ── Embedding 模型配置 ───────────────────────────────────
+# ── Embedding API 配置（硅基流动 SiliconFlow）────────────
 
+EMBEDDING_API_KEY = os.getenv("SILICONFLOW_API_KEY", "")
+EMBEDDING_API_BASE_URL = os.getenv(
+    "SILICONFLOW_BASE_URL",
+    "https://api.siliconflow.cn/v1",
+)
 EMBEDDING_MODEL_NAME = os.getenv(
     "EMBEDDING_MODEL",
     "BAAI/bge-large-zh-v1.5",
 )
 EMBEDDING_DIM = 1024  # bge-large-zh-v1.5 输出 1024 维
 EMBEDDING_BATCH_SIZE = int(os.getenv("EMBEDDING_BATCH_SIZE", "32"))
-EMBEDDING_DEVICE = "cuda"  # sentence-transformers 自动回退到 cpu
 
 # ── Chunk 参数 ──────────────────────────────────────────
 
 CHUNK_MIN_SIZE = int(os.getenv("CHUNK_MIN_SIZE", "300"))
 CHUNK_MAX_SIZE = int(os.getenv("CHUNK_MAX_SIZE", "800"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "80"))
+
+# 切分方法: "section_aware"（自有 section-aware 策略）或 "recursive"（LangChain RecursiveCharacterTextSplitter）
+CHUNK_METHOD = os.getenv("CHUNK_METHOD", "section_aware")
 
 # ── PDF 文件名 → (doc_title, category) 映射 ──────────────
 

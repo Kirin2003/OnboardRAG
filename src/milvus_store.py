@@ -11,6 +11,7 @@ from pymilvus import (
     FieldSchema,
     CollectionSchema,
 )
+from pymilvus.milvus_client import IndexParams
 
 from src.config import (
     MILVUS_DB_PATH,
@@ -35,13 +36,16 @@ def _build_schema() -> CollectionSchema:
     return CollectionSchema(fields, description="OnboardRAG chunks")
 
 
-# 向量索引参数
-INDEX_PARAMS = {
-    "field_name": "vector",
-    "index_type": "IVF_FLAT",
-    "metric_type": "COSINE",
-    "params": {"nlist": 128},
-}
+def _build_index_params() -> IndexParams:
+    """构建向量索引参数（pymilvus 3.0 使用 IndexParams 对象）。"""
+    index_params = IndexParams()
+    index_params.add_index(
+        field_name="vector",
+        index_type="IVF_FLAT",
+        metric_type="COSINE",
+        params={"nlist": 128},
+    )
+    return index_params
 
 # 标量字段索引（加速按 category/source_file 过滤）
 SCALAR_FIELDS = ["category", "source_file"]
@@ -83,10 +87,11 @@ def create_collection(
         return
 
     schema = _build_schema()
+    index_params = _build_index_params()
     client.create_collection(
         collection_name=MILVUS_COLLECTION_NAME,
         schema=schema,
-        index_params=INDEX_PARAMS,
+        index_params=index_params,
     )
 
     # 创建标量索引

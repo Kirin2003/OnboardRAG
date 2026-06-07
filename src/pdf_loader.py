@@ -42,13 +42,31 @@ class PDFPage:
         }
 
 
-def load_pdfs(pdf_dir: str | Path) -> list[PDFPage]:
-    """加载目录下所有 PDF，返回每页的 PDFPage 列表。"""
+def load_pdfs(
+    pdf_dir: str | Path,
+    filenames: list[str] | None = None,
+) -> list[PDFPage]:
+    """加载目录下的 PDF，返回每页的 PDFPage 列表。
+
+    Args:
+        pdf_dir: PDF 文件目录
+        filenames: 可选，指定要加载的文件名列表（如 ["员工手册.pdf"]）。
+                   不指定则加载目录下所有 PDF。
+    """
     pdf_dir = Path(pdf_dir)
     if not pdf_dir.exists():
         raise FileNotFoundError(f"PDF 目录不存在: {pdf_dir}")
 
-    pdf_files = sorted(pdf_dir.glob("*.pdf"))
+    if filenames:
+        pdf_files = [pdf_dir / f for f in filenames if (pdf_dir / f).exists()]
+        missing = set(filenames) - {f.name for f in pdf_files}
+        if missing:
+            print(f"  警告: 以下文件未找到: {missing}")
+        if not pdf_files:
+            raise FileNotFoundError(f"指定文件均不存在: {filenames}")
+    else:
+        pdf_files = sorted(pdf_dir.glob("*.pdf"))
+
     if not pdf_files:
         raise FileNotFoundError(f"目录下没有找到 PDF 文件: {pdf_dir}")
 

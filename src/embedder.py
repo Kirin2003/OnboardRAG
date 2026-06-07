@@ -1,21 +1,23 @@
 """
 Embedding 向量化模块。
 
-使用 BAAI/bge-large-zh-v1.5 模型生成 dense embedding。
+使用硅基流动 SiliconFlow API 生成 dense embedding。
+模型: BAAI/bge-large-zh-v1.5，输出 1024 维。
 """
 
-from sentence_transformers import SentenceTransformer
+from openai import OpenAI
 
 from src.config import (
+    EMBEDDING_API_KEY,
+    EMBEDDING_API_BASE_URL,
     EMBEDDING_MODEL_NAME,
     EMBEDDING_DIM,
     EMBEDDING_BATCH_SIZE,
-    EMBEDDING_DEVICE,
 )
 
 
 class Embedder:
-    """文本向量化器。
+    """文本向量化器（通过硅基流动 API）。
 
     Usage:
         embedder = Embedder()
@@ -25,20 +27,24 @@ class Embedder:
     def __init__(
         self,
         model_name: str | None = None,
-        device: str | None = None,
+        api_key: str | None = None,
+        base_url: str | None = None,
     ):
         self.model_name = model_name or EMBEDDING_MODEL_NAME
-        self.device = device or EMBEDDING_DEVICE
+        api_key = api_key or EMBEDDING_API_KEY
+        base_url = base_url or EMBEDDING_API_BASE_URL
 
-        self._model = SentenceTransformer(
-            self.model_name,
-            device=self.device,
-            trust_remote_code=True,
-        )
+        if not api_key:
+            raise ValueError(
+                "SILICONFLOW_API_KEY 未设置。请在 .env 文件中配置或设置环境变量。"
+            )
+
+        self._client = OpenAI(api_key=api_key, base_url=base_url)
 
     @property
     def dim(self) -> int:
-        return self._model.get_sentence_embedding_dimension()
+        """返回 embedding 向量维度。"""
+        return EMBEDDING_DIM
 
     def encode(
         self,
@@ -50,23 +56,33 @@ class Embedder:
 
         Args:
             texts: 文本列表
-            batch_size: 批处理大小
+            batch_size: 批处理大小（每批发送多少条文本）
             show_progress: 是否显示进度条
 
         Returns:
-            embedding 向量列表（每个是 float 列表）
+            embedding 向量列表（每个是 float 列表），顺序与 texts 一致
         """
         batch_size = batch_size or EMBEDDING_BATCH_SIZE
 
-        # sentence-transformers 的 encode 已内置 normalize
-        embeddings = self._model.encode(
-            texts,
-            batch_size=batch_size,
-            show_progress_bar=show_progress,
-            normalize_embeddings=True,  # bge 推荐 normalize，方便余弦相似度
-        )
+        all_embeddings: list[list[float]] = []
 
-        return embeddings.tolist()
+        total = len(texts)
+        for i in range(0, total, batch_size):
+            batch = texts[i:i + batch_size]
+
+            if show_progress:
+                print(f"  embedding: {min(i + batch_size, total)}/{total}")
+
+            response = self._client.embeddings.create(
+                model=self.model_name,
+                input=batch,
+            )
+
+            # 按 index 排序后取 embedding，确保顺序
+            sorted_data = sorted(response.data, key=lambda d: d.index)
+            all_embeddings.extend([d.embedding for d in sorted_data])
+
+        return all_embeddings
 
     def encode_chunks(
         self,
