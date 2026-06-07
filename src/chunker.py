@@ -447,10 +447,15 @@ def _chunk_section_recursive(section: dict) -> list[dict]:
             "page_end": section["page_end"],
         }]
 
+    # 计算 embedding 文本前缀的开销（文档：xxx / 小节：xxx / 正文：）
+    # 确保最终 text 长度 ≤ CHUNK_MAX_SIZE，不会超出 embedding 模型的 token 限制
+    prefix_overhead = len(_build_embedding_text("", section["section_title"], section["doc_title"]))
+    effective_chunk_size = max(CHUNK_MIN_SIZE, CHUNK_MAX_SIZE - prefix_overhead)
+
     # 初始化 RecursiveCharacterTextSplitter
     # 分隔符按优先级排列：段落 → 换行 → 句号 → 分号 → 逗号 → 空格 → 字符
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=CHUNK_MAX_SIZE,
+        chunk_size=effective_chunk_size,
         chunk_overlap=CHUNK_OVERLAP,
         separators=["\n\n", "\n", "。", "；", "，", " ", ""],
         length_function=len,

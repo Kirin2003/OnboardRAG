@@ -1,6 +1,6 @@
 {
-  "active_wal_number": 2,
-  "current_seq": 11,
+  "active_wal_number": 3,
+  "current_seq": 71,
   "index_specs": {
     "vector": {
       "build_params": {},
@@ -14,11 +14,12 @@
   "partitions": {
     "_default": {
       "data_files": [
-        "data/data_000001_000011.parquet"
+        "data/data_000001_000011.parquet",
+        "data/data_000012_000071.parquet"
       ],
       "delta_files": []
     }
   },
   "schema_version": 1,
-  "version": 2
+  "version": 3
 }

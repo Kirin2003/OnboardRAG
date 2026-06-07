@@ -13,8 +13,21 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
 # ── 路径配置 ────────────────────────────────────────────
+# 所有相对路径都基于 PROJECT_ROOT 解析，避免从不同 CWD 运行时出错
 
-DATA_DIR = Path(os.getenv("ONBOARDRAG_DATA_DIR", PROJECT_ROOT / "data"))
+def _resolve_path(raw: str | None, default: Path) -> Path:
+    """将可能为相对路径的字符串解析为基于 PROJECT_ROOT 的绝对路径。"""
+    if raw is None or raw == "":
+        return default
+    p = Path(raw)
+    if p.is_absolute():
+        return p
+    return (PROJECT_ROOT / p).resolve()
+
+
+DATA_DIR = _resolve_path(
+    os.getenv("ONBOARDRAG_DATA_DIR"), PROJECT_ROOT / "data"
+)
 RAW_PDFS_DIR = DATA_DIR / "raw_pdfs"
 PROCESSED_DIR = DATA_DIR / "processed"
 
@@ -23,9 +36,8 @@ PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
 # ── Milvus Lite 配置 ─────────────────────────────────────
 
-MILVUS_DB_PATH = os.getenv(
-    "MILVUS_DB_PATH",
-    str(DATA_DIR / "onboard_rag.db"),
+MILVUS_DB_PATH = str(
+    _resolve_path(os.getenv("MILVUS_DB_PATH"), DATA_DIR / "onboard_rag.db")
 )
 MILVUS_COLLECTION_NAME = "onboard_chunks"
 
@@ -51,6 +63,31 @@ CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "80"))
 
 # 切分方法: "section_aware"（自有 section-aware 策略）或 "recursive"（LangChain RecursiveCharacterTextSplitter）
 CHUNK_METHOD = os.getenv("CHUNK_METHOD", "section_aware")
+
+# ── 阶段二：LLM 配置 ────────────────────────────────────
+
+LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
+LLM_API_KEY = os.getenv("LLM_API_KEY", os.getenv("OPENAI_API_KEY", ""))
+LLM_MODEL = os.getenv("LLM_MODEL", "qwen3.6-flash-2026-04-16")
+
+# ── 阶段二：检索参数 ────────────────────────────────────
+
+# 检索返回的候选 chunk 数量（RRF 合并后）
+RETRIEVAL_TOP_K = int(os.getenv("RETRIEVAL_TOP_K", "10"))
+
+# Dense 检索返回的候选数（通常设大一些供 RRF 合并）
+DENSE_TOP_K = int(os.getenv("DENSE_TOP_K", "20"))
+
+# BM25 检索返回的候选数
+BM25_TOP_K = int(os.getenv("BM25_TOP_K", "20"))
+
+# RRF 参数：k 值（默认 60）
+RRF_K = int(os.getenv("RRF_K", "60"))
+
+# ── 阶段二：Reranker 配置 ─────────────────────────────
+
+ENABLE_RERANKER = os.getenv("ENABLE_RERANKER", "false").lower() == "true"
+RERANKER_MODEL = os.getenv("RERANKER_MODEL", "BAAI/bge-reranker-base")
 
 # ── PDF 文件名 → (doc_title, category) 映射 ──────────────
 

@@ -51,6 +51,7 @@ class Embedder:
         texts: list[str],
         batch_size: int | None = None,
         show_progress: bool = True,
+        max_chars: int = 500,
     ) -> list[list[float]]:
         """将文本列表编码为 embedding 向量。
 
@@ -58,17 +59,31 @@ class Embedder:
             texts: 文本列表
             batch_size: 批处理大小（每批发送多少条文本）
             show_progress: 是否显示进度条
+            max_chars: 单条文本最大字符数，超出部分截断（防止超出模型 token 限制）
 
         Returns:
             embedding 向量列表（每个是 float 列表），顺序与 texts 一致
         """
         batch_size = batch_size or EMBEDDING_BATCH_SIZE
 
+        # 截断过长文本，防止超出模型 token 限制
+        truncated_count = 0
+        safe_texts: list[str] = []
+        for t in texts:
+            if len(t) > max_chars:
+                safe_texts.append(t[:max_chars])
+                truncated_count += 1
+            else:
+                safe_texts.append(t)
+
+        if truncated_count > 0:
+            print(f"  ⚠ 截断了 {truncated_count} 条过长文本（> {max_chars} chars）")
+
         all_embeddings: list[list[float]] = []
 
-        total = len(texts)
+        total = len(safe_texts)
         for i in range(0, total, batch_size):
-            batch = texts[i:i + batch_size]
+            batch = safe_texts[i:i + batch_size]
 
             if show_progress:
                 print(f"  embedding: {min(i + batch_size, total)}/{total}")
