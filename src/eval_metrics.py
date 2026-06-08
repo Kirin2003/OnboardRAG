@@ -317,7 +317,7 @@ def _best_match_for_entry(
     best_evidence = None
 
     for rank, chunk in enumerate(chunks, start=1):
-        chunk_text = chunk.get("body_text", chunk.get("text", ""))
+        chunk_text = chunk.get("body_text") or chunk.get("text", "")
         for ev in evidence_list:
             quote = ev.get("quote", "")
             if not quote:
@@ -423,7 +423,7 @@ def evidence_recall_at_k(
 
     matched_evidence_indices = set()
     for rank, chunk in enumerate(chunks[:k], start=1):
-        chunk_text = chunk.get("body_text", chunk.get("text", ""))
+        chunk_text = chunk.get("body_text") or chunk.get("text", "")
         for idx, ev in enumerate(evidence_list):
             if idx in matched_evidence_indices:
                 continue
@@ -435,6 +435,33 @@ def evidence_recall_at_k(
                 matched_evidence_indices.add(idx)
 
     return len(matched_evidence_indices) / total
+
+
+def evidence_unit_mrr(
+    chunks: list[dict],
+    evidence_units: list[str],
+    match_fn,
+) -> float:
+    """计算 evidence unit 级别的 MRR。
+
+    从 k=1 开始逐个增加 chunk，找到首次 evidence_group_full_hit 的 k
+    （即所有 unit 都被覆盖），返回 1/k。若全程未全部命中则返回 0.0。
+
+    Args:
+        chunks: retrieved chunks 列表
+        evidence_units: evidence unit 文本列表
+        match_fn: 匹配函数
+
+    Returns:
+        mrr_value [0, 1]
+    """
+    if not evidence_units:
+        return 0.0
+    for r in range(1, len(chunks) + 1):
+        metrics = compute_evidence_unit_metrics(chunks, evidence_units, r, match_fn)
+        if metrics["evidence_group_full_hit"]:
+            return 1.0 / r
+    return 0.0
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -591,7 +618,7 @@ def build_retrieved_context(chunks: list[dict], k: int) -> str:
     """
     texts = []
     for chunk in chunks[:k]:
-        text = chunk.get("body_text", chunk.get("text", ""))
+        text = chunk.get("body_text") or chunk.get("text", "")
         if text:
             texts.append(text)
     return "\n".join(texts)
@@ -606,24 +633,28 @@ def match_evidence_unit_in_context(
 
     匹配流程：
     1. 先做 normalized exact containment（unit 归一化后是 context 归一化后的子串）
-    2. 如果 exact 不命中，再用 fuzzy matching
+    2. 如果 exact 不命中，且 match_fn 不为 None，则用 match_fn 做 fuzzy matching
+    3. 如果 match_fn 为 None，则不做 fuzzy matching（纯精确模式）
 
     Args:
         unit_text: evidence unit 原文
         context_text: 拼接后的 top-k chunk 文本
         match_fn: 匹配函数，签名为 (quote, chunk_text) -> (bool, scores_dict)
+                  传 None 表示仅做精确匹配，不做模糊回退
 
     Returns:
         (is_match, scores_dict)
     """
+    empty_scores = {"exact_match": False, "containment": 0.0, "rouge_l": 0.0, "partial_ratio": 0.0}
+
     if not unit_text or not context_text:
-        return False, {"exact_match": False, "containment": 0.0, "rouge_l": 0.0, "partial_ratio": 0.0}
+        return False, empty_scores
 
     u_norm = normalize_text(unit_text)
     c_norm = normalize_text(context_text)
 
     if not u_norm or not c_norm:
-        return False, {"exact_match": False, "containment": 0.0, "rouge_l": 0.0, "partial_ratio": 0.0}
+        return False, empty_scores
 
     # Step 1: normalized exact containment
     if u_norm in c_norm:
@@ -634,8 +665,11 @@ def match_evidence_unit_in_context(
             "partial_ratio": 1.0,
         }
 
-    # Step 2: fuzzy matching (on the full context)
-    return match_fn(unit_text, context_text)
+    # Step 2: fuzzy matching (only if match_fn is provided)
+    if match_fn is not None:
+        return match_fn(unit_text, context_text)
+
+    return False, empty_scores
 
 
 def compute_evidence_unit_metrics(
@@ -648,6 +682,8 @@ def compute_evidence_unit_metrics(
 
     将 top-k chunks 的文本拼接后，逐一检查每个 evidence unit 是否命中。
 
+    unit_hit_i@k = evidence unit i 是否被 top-k context 覆盖
+
     Args:
         chunks: retrieved chunks 列表
         evidence_units: evidence unit 文本列表
@@ -659,7 +695,8 @@ def compute_evidence_unit_metrics(
             "evidence_unit_total": int,
             "evidence_unit_hit_count": int,
             "evidence_unit_recall": float,
-            "evidence_group_hit": bool (1 if >=1 unit matched),
+            "evidence_group_any_hit": bool (hit_count > 0),
+            "evidence_group_full_hit": bool (hit_count == total),
             "matched_units": [matched unit texts],
             "missing_units": [missing unit texts],
             "unit_details": [{unit, is_match, scores}, ...],
@@ -671,7 +708,8 @@ def compute_evidence_unit_metrics(
             "evidence_unit_total": 0,
             "evidence_unit_hit_count": 0,
             "evidence_unit_recall": 0.0,
-            "evidence_group_hit": False,
+            "evidence_group_any_hit": False,
+            "evidence_group_full_hit": False,
             "matched_units": [],
             "missing_units": [],
             "unit_details": [],
@@ -701,7 +739,8 @@ def compute_evidence_unit_metrics(
         "evidence_unit_total": total,
         "evidence_unit_hit_count": hit_count,
         "evidence_unit_recall": hit_count / total,
-        "evidence_group_hit": hit_count > 0,
+        "evidence_group_any_hit": hit_count > 0,
+        "evidence_group_full_hit": hit_count == total,
         "matched_units": matched_units,
         "missing_units": missing_units,
         "unit_details": unit_details,

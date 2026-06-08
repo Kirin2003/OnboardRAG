@@ -129,7 +129,6 @@ class Retriever:
             entity = hit.get("entity", hit)
             chunks.append({
                 "chunk_id": entity.get("chunk_id", ""),
-                "body_text": "",  # Milvus 里不存 body_text，后续从 BM25 合并
                 "text": entity.get("text", ""),
                 "doc_title": entity.get("doc_title", ""),
                 "source_file": entity.get("source_file", ""),
