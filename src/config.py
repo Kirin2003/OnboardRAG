@@ -43,11 +43,15 @@ MILVUS_COLLECTION_NAME = "onboard_chunks"
 
 # ── Embedding API 配置（硅基流动 SiliconFlow）────────────
 
-EMBEDDING_API_KEY = os.getenv("SILICONFLOW_API_KEY", "")
-EMBEDDING_API_BASE_URL = os.getenv(
+SILICONFLOW_API_KEY = os.getenv("SILICONFLOW_API_KEY", "")
+SILICONFLOW_BASE_URL = os.getenv(
     "SILICONFLOW_BASE_URL",
     "https://api.siliconflow.cn/v1",
 )
+
+# Embedding 用的别名（复用硅基流动 API）
+EMBEDDING_API_KEY = SILICONFLOW_API_KEY
+EMBEDDING_API_BASE_URL = SILICONFLOW_BASE_URL
 EMBEDDING_MODEL_NAME = os.getenv(
     "EMBEDDING_MODEL",
     "BAAI/bge-large-zh-v1.5",
@@ -72,7 +76,10 @@ LLM_MODEL = os.getenv("LLM_MODEL", "qwen3.6-flash-2026-04-16")
 
 # ── 阶段二：检索参数 ────────────────────────────────────
 
-# 检索返回的候选 chunk 数量（RRF 合并后）
+# 检索模式: "hybrid"（混合检索）、"dense"（仅向量）、"bm25"（仅关键词）
+RETRIEVAL_MODE = os.getenv("RETRIEVAL_MODE", "hybrid")
+
+# 检索返回的候选 chunk 数量（RRF 合并后 / 单路检索后）
 RETRIEVAL_TOP_K = int(os.getenv("RETRIEVAL_TOP_K", "10"))
 
 # Dense 检索返回的候选数（通常设大一些供 RRF 合并）
@@ -84,10 +91,10 @@ BM25_TOP_K = int(os.getenv("BM25_TOP_K", "20"))
 # RRF 参数：k 值（默认 60）
 RRF_K = int(os.getenv("RRF_K", "60"))
 
-# ── 阶段二：Reranker 配置 ─────────────────────────────
+# ── 阶段二：Reranker 配置（硅基流动）──────────────────
 
 ENABLE_RERANKER = os.getenv("ENABLE_RERANKER", "false").lower() == "true"
-RERANKER_MODEL = os.getenv("RERANKER_MODEL", "BAAI/bge-reranker-base")
+RERANKER_MODEL = os.getenv("RERANKER_MODEL", "BAAI/bge-reranker-v2-m3")
 
 # ── PDF 文件名 → (doc_title, category) 映射 ──────────────
 

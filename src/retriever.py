@@ -1,10 +1,22 @@
 """
-混合检索模块：Dense 向量检索（Milvus）+ BM25 关键词检索 → RRF 合并。
+检索模块，支持三种检索模式：
+
+1. hybrid（默认）—— Dense 向量（Milvus）+ BM25 关键词 → RRF 合并
+2. dense —— 仅向量检索（embedding）
+3. bm25  —— 仅关键词检索（BM25）
 
 Usage:
     from src.retriever import Retriever
     retriever = Retriever()
-    chunks = retriever.retrieve("VPN 连不上怎么办？", top_k=10)
+
+    # 混合检索
+    chunks = retriever.retrieve("VPN 连不上怎么办？", top_k=10, mode="hybrid")
+
+    # 仅关键词（消融实验）
+    chunks = retriever.retrieve("VPN 连不上怎么办？", top_k=10, mode="bm25")
+
+    # 仅向量（消融实验）
+    chunks = retriever.retrieve("VPN 连不上怎么办？", top_k=10, mode="dense")
 """
 
 import json
@@ -28,10 +40,13 @@ from src.milvus_store import get_client
 
 
 class Retriever:
-    """混合检索器：Dense + BM25 → RRF。
+    """检索器，支持三种模式：
+    - "hybrid"（默认）：Dense + BM25 → RRF 混合检索
+    - "dense"：仅向量（embedding）检索
+    - "bm25"：仅关键词（BM25）检索
 
     初始化时加载 BM25 索引和 embedding 模型，
-    后续调用 retrieve() 进行混合检索。
+    后续调用 retrieve() 进行检索。
     """
 
     def __init__(self):
@@ -234,33 +249,46 @@ class Retriever:
         top_k: int | None = None,
         dense_top_k: int | None = None,
         bm25_top_k: int | None = None,
+        mode: str = "hybrid",
     ) -> list[dict]:
-        """执行混合检索。
+        """执行检索，支持三种模式。
 
         Args:
             query: 用户查询文本
-            top_k: RRF 合并后返回的最终 chunk 数量
-            dense_top_k: dense 检索候选数
-            bm25_top_k: BM25 检索候选数
+            top_k: 返回的最终 chunk 数量
+            dense_top_k: dense 检索候选数（仅 hybrid / dense 模式使用）
+            bm25_top_k: BM25 检索候选数（仅 hybrid / bm25 模式使用）
+            mode: 检索模式 —— "hybrid"（混合检索，默认）、
+                  "dense"（仅向量检索）、"bm25"（仅关键词检索）
 
         Returns:
-            按 RRF 分数降序排列的 chunk 列表，字段包括：
+            chunk 列表，字段包括：
             chunk_id, text, body_text, doc_title, source_file,
             category, page_start, page_end, score
         """
         from src.config import RETRIEVAL_TOP_K
 
+        if mode not in ("hybrid", "dense", "bm25"):
+            raise ValueError(f"不支持的检索模式: {mode!r}，可选值: hybrid, dense, bm25")
+
         final_top_k = top_k if top_k is not None else RETRIEVAL_TOP_K
+
+        # ── 仅 BM25 检索 ──
+        if mode == "bm25":
+            b_top_k = bm25_top_k if bm25_top_k is not None else BM25_TOP_K
+            return self._bm25_search(query, top_k=max(b_top_k, final_top_k))[:final_top_k]
+
+        # ── 仅 Dense 检索 ──
+        if mode == "dense":
+            d_top_k = dense_top_k if dense_top_k is not None else DENSE_TOP_K
+            return self._dense_search(query, top_k=max(d_top_k, final_top_k))[:final_top_k]
+
+        # ── 混合检索（Dense + BM25 → RRF）──
         d_top_k = dense_top_k if dense_top_k is not None else DENSE_TOP_K
         b_top_k = bm25_top_k if bm25_top_k is not None else BM25_TOP_K
 
-        # Dense 检索
         dense_chunks = self._dense_search(query, top_k=d_top_k)
-
-        # BM25 检索
         bm25_chunks = self._bm25_search(query, top_k=b_top_k)
 
-        # RRF 合并
         merged = self._rrf_merge(dense_chunks, bm25_chunks, k=RRF_K)
-
         return merged[:final_top_k]

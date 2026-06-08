@@ -1,8 +1,8 @@
 """
-重排序模块（可插拔接口）。
+重排序模块（硅基流动 SiliconFlow Rerank API）。
 
 MVP 阶段默认关闭（ENABLE_RERANKER=false），直接返回原排序。
-开启后可使用 BAAI/bge-reranker-base 等模型对候选 chunks 重排序。
+开启后使用硅基流动 BAAI/bge-reranker-v2-m3 等模型对候选 chunks 重排序。
 
 Usage:
     from src.reranker import Reranker
@@ -10,36 +10,39 @@ Usage:
     reranked = reranker.rerank(query, chunks, top_k=5)
 """
 
-from src.config import ENABLE_RERANKER, RERANKER_MODEL
+import httpx
+
+from src.config import (
+    ENABLE_RERANKER,
+    RERANKER_MODEL,
+    SILICONFLOW_API_KEY,
+    SILICONFLOW_BASE_URL,
+)
 
 
 class Reranker:
-    """重排序器。
+    """重排序器（通过硅基流动 Rerank API）。
 
     当 ENABLE_RERANKER=false 时，直接返回原排序结果（pass-through）。
-    当 ENABLE_RERANKER=true 时，加载 CrossEncoder 模型进行重排序。
+    当 ENABLE_RERANKER=true 时，调用硅基流动 /v1/rerank 接口进行重排序。
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        model_name: str | None = None,
+        api_key: str | None = None,
+        base_url: str | None = None,
+    ):
         self._enabled = ENABLE_RERANKER
-        self._model = None
-        if self._enabled:
-            self._load_model()
+        self._model_name = model_name or RERANKER_MODEL
+        self._api_key = api_key or SILICONFLOW_API_KEY
+        self._base_url = (base_url or SILICONFLOW_BASE_URL).rstrip("/")
 
-    def _load_model(self):
-        """延迟加载 reranker 模型。"""
-        try:
-            # 使用 FlagEmbedding 的 bge-reranker（如果可用）
-            # 也可用 sentence-transformers 的 CrossEncoder
-            from sentence_transformers import CrossEncoder
-            self._model = CrossEncoder(RERANKER_MODEL)
-            print(f"  [Reranker] 已加载模型: {RERANKER_MODEL}")
-        except ImportError:
-            print("  [Reranker] sentence-transformers 未安装，"
-                  "reranker 将降级为 pass-through")
-            self._enabled = False
-        except Exception as e:
-            print(f"  [Reranker] 加载模型失败: {e}，降级为 pass-through")
+        if self._enabled and not self._api_key:
+            print(
+                "  [Reranker] SILICONFLOW_API_KEY 未设置，"
+                "reranker 将降级为 pass-through"
+            )
             self._enabled = False
 
     def rerank(
@@ -58,22 +61,44 @@ class Reranker:
         Returns:
             重排序后的 chunk 列表，每个新增 'rerank_score' 字段
         """
-        if not self._enabled or self._model is None or len(chunks) <= 1:
+        if not self._enabled or len(chunks) <= 1:
             return chunks[:top_k]
 
         # 使用 body_text 做 rerank（更干净的文本），fallback 到 text
-        texts = [c.get("body_text", c.get("text", "")) for c in chunks]
-        pairs = [(query, t) for t in texts]
+        documents = [c.get("body_text", c.get("text", "")) for c in chunks]
 
         try:
-            scores = self._model.predict(pairs, show_progress_bar=False)
+            with httpx.Client(timeout=30) as client:
+                response = client.post(
+                    f"{self._base_url}/rerank",
+                    headers={
+                        "Authorization": f"Bearer {self._api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": self._model_name,
+                        "query": query,
+                        "documents": documents,
+                        "top_n": min(top_k, len(documents)),
+                    },
+                )
+                response.raise_for_status()
+                result = response.json()
+        except httpx.HTTPStatusError as e:
+            print(f"  [Reranker] API 请求失败 ({e.response.status_code}): {e}，"
+                  "使用原排序")
+            return chunks[:top_k]
+        except httpx.RequestError as e:
+            print(f"  [Reranker] 网络请求失败: {e}，使用原排序")
+            return chunks[:top_k]
         except Exception as e:
-            print(f"  [Reranker] 预测失败: {e}，使用原排序")
+            print(f"  [Reranker] 未知错误: {e}，使用原排序")
             return chunks[:top_k]
 
         # 附加分数并重排
-        for chunk, score in zip(chunks, scores):
-            chunk["rerank_score"] = float(score)
+        for item in result.get("results", []):
+            idx = item["index"]
+            chunks[idx]["rerank_score"] = float(item["relevance_score"])
 
         sorted_chunks = sorted(
             chunks,

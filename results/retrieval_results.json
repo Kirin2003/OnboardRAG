@@ -1,0 +1,610 @@
+{
+  "retrieval": {
+    "summary": {
+      "total_samples": 30,
+      "total_answerable": 26,
+      "hit@3": 0.9615,
+      "hit@5": 1.0,
+      "mrr": 0.9519
+    },
+    "details": [
+      {
+        "id": "eval_0001",
+        "query": "新员工入职报到需要准备哪些材料？",
+        "intent": "人事与员工事务",
+        "difficulty": "simple",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf"
+        ]
+      },
+      {
+        "id": "eval_0002",
+        "query": "试用期转正需要满足什么条件？",
+        "intent": "人事与员工事务",
+        "difficulty": "simple",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "钉钉考勤.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "钉钉考勤.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf"
+        ]
+      },
+      {
+        "id": "eval_0003",
+        "query": "公司的工作时间是怎样的？",
+        "intent": "人事与员工事务",
+        "difficulty": "simple",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf"
+        ]
+      },
+      {
+        "id": "eval_0004",
+        "query": "忘记打卡了怎么办？",
+        "intent": "人事与员工事务",
+        "difficulty": "medium",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "钉钉考勤.pdf",
+          "统一门户账号与安全.md",
+          "员工手册.pdf",
+          "钉钉考勤.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf"
+        ]
+      },
+      {
+        "id": "eval_0005",
+        "query": "试用期内辞职需要提前多久申请？转正后呢？",
+        "intent": "人事与员工事务",
+        "difficulty": "medium",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "钉钉考勤.pdf",
+          "钉钉考勤.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "钉钉考勤.pdf",
+          "员工手册.pdf"
+        ]
+      },
+      {
+        "id": "eval_0006",
+        "query": "什么情况下员工会被视为不符合录用条件？",
+        "intent": "人事与员工事务",
+        "difficulty": "medium",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "钉钉考勤.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf"
+        ]
+      },
+      {
+        "id": "eval_0007",
+        "query": "员工申请内部调动需要满足什么条件？",
+        "intent": "人事与员工事务",
+        "difficulty": "hard",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "钉钉考勤.pdf",
+          "员工手册.pdf",
+          "钉钉考勤.pdf",
+          "统一门户账号与安全.md",
+          "员工手册.pdf",
+          "员工手册.pdf"
+        ]
+      },
+      {
+        "id": "eval_0008",
+        "query": "旷工多少天会被公司解除劳动合同？",
+        "intent": "人事与员工事务",
+        "difficulty": "simple",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf"
+        ]
+      },
+      {
+        "id": "eval_0009",
+        "query": "第一次登录统一身份认证系统，账号怎么激活？",
+        "intent": "账号与统一门户",
+        "difficulty": "simple",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "OA系统使用手册.pdf",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "vpn使用和故障排查.md"
+        ]
+      },
+      {
+        "id": "eval_0010",
+        "query": "忘记统一账号密码怎么找回？",
+        "intent": "账号与统一门户",
+        "difficulty": "simple",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "OA系统使用手册.pdf",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "vpn使用和故障排查.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "企业内部移动办公.pdf"
+        ]
+      },
+      {
+        "id": "eval_0011",
+        "query": "怎么修改统一身份认证的密码？",
+        "intent": "账号与统一门户",
+        "difficulty": "simple",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "OA系统使用手册.pdf",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "vpn使用和故障排查.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md"
+        ]
+      },
+      {
+        "id": "eval_0012",
+        "query": "统一身份认证系统支持哪几种登录方式？",
+        "intent": "账号与统一门户",
+        "difficulty": "medium",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 0.5,
+        "retrieved_docs": [
+          "OA系统使用手册.pdf",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "vpn使用和故障排查.md",
+          "统一门户账号与安全.md",
+          "企业内部移动办公.pdf"
+        ]
+      },
+      {
+        "id": "eval_0013",
+        "query": "收不到短信验证码怎么办？",
+        "intent": "账号与统一门户",
+        "difficulty": "medium",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "统一门户账号与安全.md",
+          "OA系统使用手册.pdf",
+          "企业内部移动办公.pdf",
+          "OA系统使用手册.pdf",
+          "OA系统使用手册.pdf"
+        ]
+      },
+      {
+        "id": "eval_0014",
+        "query": "登录OA系统用的是统一账号吗？",
+        "intent": "账号与统一门户",
+        "difficulty": "simple",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "OA系统使用手册.pdf",
+          "统一门户账号与安全.md",
+          "企业内部移动办公.pdf",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "企业内部移动办公.pdf",
+          "统一门户账号与安全.md",
+          "vpn使用和故障排查.md"
+        ]
+      },
+      {
+        "id": "eval_0015",
+        "query": "VPN客户端在哪里下载安装？支持哪些系统？",
+        "intent": "内网访问",
+        "difficulty": "simple",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md"
+        ]
+      },
+      {
+        "id": "eval_0016",
+        "query": "VPN登录提示用户名密码错误，应该先检查什么？",
+        "intent": "内网访问",
+        "difficulty": "medium",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "统一门户账号与安全.md",
+          "vpn使用和故障排查.md",
+          "统一门户账号与安全.md",
+          "vpn使用和故障排查.md"
+        ]
+      },
+      {
+        "id": "eval_0017",
+        "query": "VPN登录成功了但内网系统还是打不开，怎么排查？",
+        "intent": "内网访问",
+        "difficulty": "medium",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "企业内部移动办公.pdf"
+        ]
+      },
+      {
+        "id": "eval_0018",
+        "query": "在家办公怎么访问公司内网？",
+        "intent": "内网访问",
+        "difficulty": "simple",
+        "answerable": true,
+        "hit@3": false,
+        "hit@5": true,
+        "mrr": 0.25,
+        "retrieved_docs": [
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "vpn使用和故障排查.md",
+          "企业内部移动办公.pdf",
+          "vpn使用和故障排查.md",
+          "企业内部移动办公.pdf",
+          "vpn使用和故障排查.md",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf"
+        ]
+      },
+      {
+        "id": "eval_0019",
+        "query": "VPN连接失败，按照完整故障排查流程应该怎么做？",
+        "intent": "内网访问",
+        "difficulty": "hard",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md",
+          "vpn使用和故障排查.md"
+        ]
+      },
+      {
+        "id": "eval_0020",
+        "query": "OA系统怎么登录？",
+        "intent": "办公平台",
+        "difficulty": "medium",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "OA系统使用手册.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "统一门户账号与安全.md",
+          "企业内部移动办公.pdf",
+          "OA系统使用手册.pdf",
+          "统一门户账号与安全.md",
+          "OA系统使用手册.pdf"
+        ]
+      },
+      {
+        "id": "eval_0021",
+        "query": "企业微信第一次怎么登录？",
+        "intent": "办公平台",
+        "difficulty": "simple",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "企业内部移动办公.pdf",
+          "统一门户账号与安全.md",
+          "统一门户账号与安全.md",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "统一门户账号与安全.md",
+          "企业内部移动办公.pdf"
+        ]
+      },
+      {
+        "id": "eval_0022",
+        "query": "怎么在OA系统里申请会议室？",
+        "intent": "办公平台",
+        "difficulty": "medium",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "OA系统使用手册.pdf",
+          "企业内部移动办公.pdf",
+          "OA系统使用手册.pdf",
+          "企业内部移动办公.pdf",
+          "OA系统使用手册.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf"
+        ]
+      },
+      {
+        "id": "eval_0023",
+        "query": "钉钉上怎么提交请假申请？需要提供什么材料？",
+        "intent": "办公平台",
+        "difficulty": "medium",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "钉钉考勤.pdf",
+          "钉钉考勤.pdf",
+          "钉钉考勤.pdf",
+          "钉钉考勤.pdf",
+          "钉钉考勤.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "钉钉考勤.pdf"
+        ]
+      },
+      {
+        "id": "eval_0024",
+        "query": "OA里怎么申请用车？",
+        "intent": "办公平台",
+        "difficulty": "medium",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "OA系统使用手册.pdf",
+          "企业内部移动办公.pdf",
+          "企业内部移动办公.pdf",
+          "OA系统使用手册.pdf",
+          "OA系统使用手册.pdf",
+          "OA系统使用手册.pdf",
+          "OA系统使用手册.pdf",
+          "企业内部移动办公.pdf",
+          "OA系统使用手册.pdf",
+          "企业内部移动办公.pdf"
+        ]
+      },
+      {
+        "id": "eval_0025",
+        "query": "钉钉上怎么提交转正申请？",
+        "intent": "办公平台",
+        "difficulty": "medium",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "钉钉考勤.pdf",
+          "钉钉考勤.pdf",
+          "钉钉考勤.pdf",
+          "钉钉考勤.pdf",
+          "钉钉考勤.pdf",
+          "钉钉考勤.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf",
+          "员工手册.pdf"
+        ]
+      },
+      {
+        "id": "eval_0026",
+        "query": "OA系统的用印申请分为哪几种类型？审批流程有什么不同？",
+        "intent": "办公平台",
+        "difficulty": "hard",
+        "answerable": true,
+        "hit@3": true,
+        "hit@5": true,
+        "mrr": 1.0,
+        "retrieved_docs": [
+          "OA系统使用手册.pdf",
+          "OA系统使用手册.pdf",
+          "OA系统使用手册.pdf",
+          "OA系统使用手册.pdf",
+          "OA系统使用手册.pdf",
+          "企业内部移动办公.pdf",
+          "钉钉考勤.pdf",
+          "OA系统使用手册.pdf",
+          "员工手册.pdf",
+          "OA系统使用手册.pdf"
+        ]
+      },
+      {
+        "id": "eval_0027",
+        "query": "你能帮我查一下我这个月发了多少工资吗？",
+        "intent": "兜底与转人工",
+        "answerable": false
+      },
+      {
+        "id": "eval_0028",
+        "query": "你能直接帮我重置统一账号的密码吗？",
+        "intent": "兜底与转人工",
+        "answerable": false
+      },
+      {
+        "id": "eval_0029",
+        "query": "公司附近有什么好吃的餐厅推荐吗？",
+        "intent": "兜底与转人工",
+        "answerable": false
+      },
+      {
+        "id": "eval_0030",
+        "query": "我按照VPN手册上的步骤做了还是连不上，你能远程帮我修好吗？",
+        "intent": "兜底与转人工",
+        "answerable": false
+      }
+    ]
+  },
+  "generation": null
+}
