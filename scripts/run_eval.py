@@ -2,7 +2,7 @@
 """
 run_eval.py — OnboardRAG 评测脚本。
 
-从 data/eval/eval_queries.jsonl 读取评测样本，执行检索评测和生成评测。
+从 data/eval/eval_queries.jsonl 读取评测样本，执行检索评测。
 
 支持三种模式：
   - doc:      仅 doc-level 检索评测（Hit@K, MRR）
@@ -28,7 +28,7 @@ run_eval.py — OnboardRAG 评测脚本。
     # 仅 exact match（跳过所有模糊匹配）
     python scripts/run_eval.py --mode evidence --exact-only
 
-    # 全量评测（doc + evidence + 生成）
+    # 全量评测（doc + evidence）
     python scripts/run_eval.py --mode all
 
     # 指定评测文件和输出目录
@@ -56,8 +56,6 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from src.retriever import Retriever
 from src.config import RETRIEVAL_TOP_K
 from src.eval_metrics import (
-    exact_evidence_match,
-    fuzzy_evidence_match,
     evidence_hit_at_k,
     evidence_mrr,
     evidence_recall_at_k,
@@ -159,151 +157,6 @@ def eval_retrieval(entries: list[dict], top_k: int = RETRIEVAL_TOP_K, mode: str 
 
 
 # ═══════════════════════════════════════════════════════════════
-# 生成评测（LLM-as-Judge）
-# ═══════════════════════════════════════════════════════════════
-
-_JUDGE_PROMPT = """你是一个严格但公正的评测员。你的任务是评估一个 RAG 系统对用户问题的回答质量。
-
-请根据以下标准和参考依据进行评分。
-
-【用户问题】
-{query}
-
-【参考依据（标准答案）】
-{reference_answer}
-
-【系统回答】
-{generated_answer}
-
-【评分维度】
-1. 正确性 (correctness)：回答是否正确回答了用户问题？（0-2分）
-   - 0 = 错误或答非所问
-   - 1 = 部分正确，有遗漏或偏差
-   - 2 = 完全正确
-
-2. 完备性 (completeness)：是否遗漏了关键步骤、条件或信息？（0-2分）
-   - 0 = 遗漏了全部关键信息
-   - 1 = 遗漏了部分关键信息
-   - 2 = 信息完备，无遗漏
-
-3. 忠实性 (faithfulness)：回答是否严格基于参考依据，有无编造？（0-2分）
-   - 0 = 大量编造或与参考依据矛盾
-   - 1 = 部分内容无法在参考依据中找到
-   - 2 = 完全忠实于参考依据
-
-{extra_dimensions}
-
-请以 JSON 格式返回评分结果：
-{{"correctness": <0-2>, "completeness": <0-2>, "faithfulness": <0-2>{extra_keys}, "comment": "<简短评语>"}}
-"""
-
-_UNANSWERABLE_DIMENSIONS = """
-4. 拒答正确性 (rejection)：系统是否正确地拒绝回答或引导转人工？（0-2分）
-   - 0 = 编造了答案、幻觉
-   - 1 = 部分拒答但仍有误导信息
-   - 2 = 明确拒答并给出合理引导
-"""
-_UNANSWERABLE_KEYS = ', "rejection": <0-2>'
-
-
-def _build_judge_prompt(entry: dict, answer: str) -> str:
-    """根据样本类型构建 judge prompt。"""
-    extra_dimensions = ""
-    extra_keys = ""
-    if not entry["answerable"]:
-        extra_dimensions = _UNANSWERABLE_DIMENSIONS
-        extra_keys = _UNANSWERABLE_KEYS
-
-    return _JUDGE_PROMPT.format(
-        query=entry["query"],
-        reference_answer=entry["reference_answer"],
-        generated_answer=answer,
-        extra_dimensions=extra_dimensions,
-        extra_keys=extra_keys,
-    )
-
-
-def eval_generation(entries: list[dict], top_k: int = 5, mode: str = "hybrid") -> dict:
-    """执行生成评测（LLM-as-Judge）。
-
-    对每条样本，先检索 + 生成答案，再用 judge LLM 打分。
-
-    Args:
-        entries: 评测样本列表
-        top_k: 检索返回的 chunk 数量
-        mode: 检索模式 ("hybrid" / "dense" / "bm25")
-    """
-    from src.query_rewriter import QueryRewriter
-    from src.reranker import Reranker
-    from src.generator import Generator
-    from openai import OpenAI
-    from src.config import LLM_BASE_URL, LLM_API_KEY, LLM_MODEL
-
-    rewriter = QueryRewriter()
-    retriever = Retriever()
-    reranker = Reranker()
-    generator = Generator()
-    judge_client = OpenAI(base_url=LLM_BASE_URL, api_key=LLM_API_KEY)
-
-    results = []
-    scores = defaultdict(list)
-
-    for i, entry in enumerate(entries):
-        print(f"  [{i+1}/{len(entries)}] {entry['id']}: {entry['query'][:40]}...")
-
-        query = rewriter.rewrite(entry["query"])
-        chunks = retriever.retrieve(query, top_k=top_k, mode=mode)
-        chunks = reranker.rerank(query, chunks, top_k=top_k)
-
-        answer, sources = generator.generate(query, chunks[:top_k])
-
-        # LLM-as-Judge 打分
-        judge_prompt = _build_judge_prompt(entry, answer)
-        try:
-            resp = judge_client.chat.completions.create(
-                model=LLM_MODEL,
-                messages=[{"role": "user", "content": judge_prompt}],
-                temperature=0.1,
-                max_tokens=512,
-            )
-            judge_text = resp.choices[0].message.content.strip()
-            # 提取 JSON 部分
-            json_start = judge_text.find("{")
-            json_end = judge_text.rfind("}") + 1
-            judge_result = json.loads(judge_text[json_start:json_end]) if json_start >= 0 else {}
-        except Exception as ex:
-            print(f"    ⚠ Judge 评测失败: {ex}")
-            judge_result = {"error": str(ex)}
-
-        # 汇总分数
-        for dim in ["correctness", "completeness", "faithfulness", "rejection"]:
-            val = judge_result.get(dim, None)
-            if isinstance(val, (int, float)):
-                scores[dim].append(val)
-
-        results.append({
-            "id": entry["id"],
-            "query": entry["query"],
-            "intent": entry["intent"],
-            "difficulty": entry["difficulty"],
-            "answerable": entry["answerable"],
-            "generated_answer": answer,
-            "sources": sources,
-            "judge_scores": judge_result,
-            "reference_answer": entry["reference_answer"],
-        })
-
-    # 汇总
-    summary = {}
-    for dim, vals in scores.items():
-        if vals:
-            summary[f"avg_{dim}"] = round(sum(vals) / len(vals), 3)
-            summary[f"count_{dim}"] = len(vals)
-
-    return {"summary": summary, "details": results}
-
-
-# ═══════════════════════════════════════════════════════════════
 # 按意图 / 难度分组统计
 # ═══════════════════════════════════════════════════════════════
 
@@ -357,18 +210,6 @@ def print_retrieval_report(retrieval_result: dict, mode: str = "hybrid") -> None
         print(f"  {diff:<10} {n:<6} {h3:<8.2%} {h5:<8.2%} {mrr:<8.4f}")
 
 
-def print_generation_report(gen_result: dict) -> None:
-    """打印生成评测报告。"""
-    summary = gen_result["summary"]
-    print("\n" + "=" * 60)
-    print("  生成评测结果 (LLM-as-Judge)")
-    print("=" * 60)
-    for dim in ["correctness", "completeness", "faithfulness", "rejection"]:
-        key = f"avg_{dim}"
-        if key in summary:
-            print(f"  avg_{dim}: {summary[key]:.2f}/2 (n={summary[f'count_{dim}']})")
-
-
 # ═══════════════════════════════════════════════════════════════
 # Evidence-Level 检索评测
 # ═══════════════════════════════════════════════════════════════
@@ -382,12 +223,12 @@ def eval_evidence_retrieval(
     mode: str = "hybrid",
     exact_only: bool = False,
     match_method: str = "fuzzy",
-    verbose: bool = False,
 ) -> dict:
     """执行 evidence-level 检索评测。
 
     只对 answerable=true 且 evidence 非空的样本计算指标。
     同时计算 exact match + 指定方法的匹配结果。
+    始终返回每条的详细证据匹配信息（verbose_data）。
 
     Args:
         entries: 评测样本列表
@@ -396,16 +237,15 @@ def eval_evidence_retrieval(
         rouge_l_threshold: ROUGE-L recall 阈值
         partial_ratio_threshold: partial_ratio 阈值
         mode: 检索模式 ("hybrid" / "dense" / "bm25")
-        exact_only: 仅计算 exact match，跳过第二匹配器（等价于 match_method="exact"）
+        exact_only: 仅计算 exact match，跳过第二匹配器
         match_method: 第二匹配器方法（仅在 exact_only=False 时生效）
-            - "fuzzy": 三合一模糊匹配（containment+ROUGE-L / partial_ratio）（默认）
+            - "fuzzy": 三合一模糊匹配（默认）
             - "rouge_l": 纯 ROUGE-L 匹配
             - "containment": 纯 char 3-gram containment 匹配
             - "partial_ratio": 纯 partial_ratio 匹配
-        verbose: 收集详细的证据匹配信息（用于调试）
 
     Returns:
-        {summary: {...}, details: [...], verbose_data: [...] | None}
+        {summary: {...}, details: [...], verbose_data: [...]}
     """
     from src.eval_metrics import normalize_text
 
@@ -434,7 +274,7 @@ def eval_evidence_retrieval(
         second_label = "fuzzy"
 
     results = []
-    verbose_data = [] if verbose else None
+    verbose_data = []  # 始终收集详细匹配信息
 
     # exact 计数器
     e_hit3, e_hit5, e_mrr_sum = 0, 0, 0.0
@@ -537,78 +377,74 @@ def eval_evidence_retrieval(
             "retrieved_docs_top5": " | ".join(retrieved_docs),
         })
 
-        # ── verbose: 仅收集 exact 未命中的样本 ──
-        if verbose and not e_hit5_val:
-            # 构建 evidence 详情
-            ev_details = []
-            for ev in evidence_list:
-                quote = ev.get("quote", "")
-                ev_details.append({
-                    "quote": quote,
-                    "normalized": normalize_text(quote),
-                })
-
-            # 构建每个 chunk 的匹配详情
-            chunk_details = []
-            for rank, chunk in enumerate(chunks[:top_k], start=1):
-                chunk_text = chunk.get("body_text", chunk.get("text", ""))
-                c_norm = normalize_text(chunk_text)
-                cd = {
-                    "rank": rank,
-                    "source_file": chunk.get("source_file", ""),
-                    "body_text": chunk_text[:300],  # 截断便于阅读
-                    "body_text_normalized": c_norm[:300],
-                }
-
-                # 对每个 evidence 检查 exact match 和 第二匹配器
-                exact_matched_indices = []
-                second_match_details = {}
-                for idx, ev in enumerate(evidence_list):
-                    quote = ev.get("quote", "")
-                    if not quote:
-                        continue
-                    # exact
-                    e_norm = normalize_text(quote)
-                    if e_norm and e_norm in c_norm:
-                        exact_matched_indices.append(idx)
-
-                    # 第二匹配器（如果启用）
-                    if second_match is not None:
-                        is_match, scores = second_match(quote, chunk_text)
-                        second_match_details[str(idx)] = {
-                            "quote": quote[:80],
-                            "is_match": is_match,
-                            "scores": scores,
-                        }
-
-                cd["exact_matched_evidence_indices"] = exact_matched_indices
-                if second_match is not None:
-                    cd[f"{second_label}_match_per_evidence"] = second_match_details
-                chunk_details.append(cd)
-
-            verbose_data.append({
-                "id": entry["id"],
-                "query": entry["query"],
-                "intent": entry["intent"],
-                "difficulty": entry.get("difficulty", ""),
-                "expected_docs": entry.get("expected_docs", []),
-                "evidence": ev_details,
-                "retrieved_chunks": chunk_details,
-                "exact_summary": {
-                    "hit@3": e_hit3_val,
-                    "hit@5": e_hit5_val,
-                    "mrr": round(e_mrr_val, 4),
-                    "recall@3": round(e_rec3, 4),
-                    "recall@5": round(e_rec5, 4),
-                },
-                f"{second_label}_summary": {
-                    "hit@3": f_hit3_val if second_match is not None else None,
-                    "hit@5": f_hit5_val if second_match is not None else None,
-                    "mrr": round(f_mrr_val, 4) if second_match is not None else None,
-                    "recall@3": round(f_rec3, 4) if second_match is not None else None,
-                    "recall@5": round(f_rec5, 4) if second_match is not None else None,
-                },
+        # ── 详细匹配信息（始终收集，每样本一条）──
+        ev_details = []
+        for ev in evidence_list:
+            quote = ev.get("quote", "")
+            ev_details.append({
+                "quote": quote,
+                "normalized": normalize_text(quote),
             })
+
+        # 构建每个 chunk 的匹配详情
+        chunk_details = []
+        for rank, chunk in enumerate(chunks[:top_k], start=1):
+            chunk_text = chunk.get("body_text", chunk.get("text", ""))
+            c_norm = normalize_text(chunk_text)
+            cd = {
+                "rank": rank,
+                "source_file": chunk.get("source_file", ""),
+                "body_text": chunk_text[:300],
+                "body_text_normalized": c_norm[:300],
+            }
+
+            # 对每个 evidence 检查 exact match 和 第二匹配器
+            exact_matched_indices = []
+            second_match_details = {}
+            for idx, ev in enumerate(evidence_list):
+                quote = ev.get("quote", "")
+                if not quote:
+                    continue
+                e_norm = normalize_text(quote)
+                if e_norm and e_norm in c_norm:
+                    exact_matched_indices.append(idx)
+
+                if second_match is not None:
+                    is_match, scores = second_match(quote, chunk_text)
+                    second_match_details[str(idx)] = {
+                        "quote": quote[:80],
+                        "is_match": is_match,
+                        "scores": scores,
+                    }
+
+            cd["exact_matched_evidence_indices"] = exact_matched_indices
+            if second_match is not None:
+                cd[f"{second_label}_match_per_evidence"] = second_match_details
+            chunk_details.append(cd)
+
+        verbose_data.append({
+            "id": entry["id"],
+            "query": entry["query"],
+            "intent": entry["intent"],
+            "difficulty": entry.get("difficulty", ""),
+            "expected_docs": entry.get("expected_docs", []),
+            "evidence": ev_details,
+            "retrieved_chunks": chunk_details,
+            "exact_summary": {
+                "hit@3": e_hit3_val,
+                "hit@5": e_hit5_val,
+                "mrr": round(e_mrr_val, 4),
+                "recall@3": round(e_rec3, 4),
+                "recall@5": round(e_rec5, 4),
+            },
+            f"{second_label}_summary": {
+                "hit@3": f_hit3_val if second_match is not None else None,
+                "hit@5": f_hit5_val if second_match is not None else None,
+                "mrr": round(f_mrr_val, 4) if second_match is not None else None,
+                "recall@3": round(f_rec3, 4) if second_match is not None else None,
+                "recall@5": round(f_rec5, 4) if second_match is not None else None,
+            },
+        })
 
     # 汇总
     n = total_valid if total_valid > 0 else 1
@@ -635,9 +471,7 @@ def eval_evidence_retrieval(
         f"{second_label}_recall@5": round(f_rec5_sum / n, 4) if second_match is not None else None,
     }
 
-    result = {"summary": summary, "details": results}
-    if verbose:
-        result["verbose_data"] = verbose_data
+    result = {"summary": summary, "details": results, "verbose_data": verbose_data}
     return result
 
 
@@ -820,32 +654,6 @@ def save_evidence_results(
     return csv_path, md_path
 
 
-def save_evidence_verbose(verbose_data: list[dict], output_dir: str | Path) -> Path:
-    """保存 verbose 证据匹配详情 JSON 文件。
-
-    每条样本包含：
-    - 标准 evidence 的原文和归一化文本
-    - 每个检索到的 chunk 的原文（截断）和归一化文本
-    - 每个 evidence 在哪个 chunk 中精确命中
-    - fuzzy 匹配分数明细（如启用）
-
-    Args:
-        verbose_data: eval_evidence_retrieval 返回的 verbose_data
-        output_dir: 输出目录
-
-    Returns:
-        json_path
-    """
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    json_path = output_dir / "证据匹配详情_verbose.json"
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(verbose_data, f, ensure_ascii=False, indent=2)
-
-    return json_path
-
-
 def print_evidence_report(result: dict, mode: str = "hybrid") -> None:
     """在终端打印 evidence-level 评测报告（中文）。"""
     summary = result["summary"]
@@ -895,6 +703,36 @@ def print_evidence_report(result: dict, mode: str = "hybrid") -> None:
             print(f"  {intent:<16} {m['count']:<8} {m['exact_hit@5']:<10.2%} {m[f'{second_label}_hit@5']:<10.2%} {m[f'{second_label}_mrr']:<10.4f}")
 
 
+def print_per_query_details(verbose_data: list[dict], second_label: str) -> None:
+    """逐条打印每个 query 的 expected vs retrieved 证据匹配情况。"""
+    print("\n" + "=" * 60)
+    print("  逐条证据匹配详情")
+    print("=" * 60)
+
+    for i, v in enumerate(verbose_data, start=1):
+        exact_hit = "✓" if v["exact_summary"]["hit@5"] else "✗"
+        second_key = f"{second_label}_summary"
+        second_hit = "✓" if v.get(second_key, {}).get("hit@5") else "✗"
+
+        print(f"\n── [{i:02d}] {v['id']} | {v['intent']} | "
+              f"exact={exact_hit} {second_label}={second_hit} ──")
+        print(f"  查询: {v['query'][:80]}")
+        if v.get("expected_docs"):
+            print(f"  期望文档: {', '.join(v['expected_docs'])}")
+
+        # Evidence 列表
+        print(f"  标准 Evidence ({len(v['evidence'])}条):")
+        for j, ev in enumerate(v["evidence"]):
+            print(f"    [{j}] {ev['quote'][:100]}")
+
+        # Chunk 匹配情况
+        print(f"  检索结果 (Top{len(v['retrieved_chunks'])}):")
+        for c in v["retrieved_chunks"]:
+            matched = c.get("exact_matched_evidence_indices", [])
+            status = f"✓ ev[{','.join(map(str, matched))}]" if matched else "-"
+            print(f"    rank={c['rank']} {c['source_file']:<30} {status}")
+
+
 # ═══════════════════════════════════════════════════════════════
 # 主入口
 # ═══════════════════════════════════════════════════════════════
@@ -913,11 +751,6 @@ def main():
         choices=["doc", "evidence", "all"],
         default="all",
         help="评测模式: doc（仅 doc-level）、evidence（仅 evidence-level）、all（全部，默认）",
-    )
-    parser.add_argument(
-        "--retrieval-only",
-        action="store_true",
-        help="仅执行检索评测（doc + evidence），跳过 LLM 生成评测",
     )
     parser.add_argument(
         "--top-k",
@@ -981,12 +814,6 @@ def main():
         help="evidence 第二匹配器方法（默认: fuzzy）。fuzzy=三合一, rouge_l=纯ROUGE-L, "
              "containment=纯3-gram包含度, partial_ratio=纯部分匹配率",
     )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="输出详细证据匹配 JSON，包含每个 query 的标准 evidence 和检索到的 evidence 对比",
-    )
-
     args = parser.parse_args()
 
     eval_path = Path(args.eval_file)
@@ -1025,9 +852,15 @@ def main():
             mode=args.retrieval_mode,
             exact_only=args.exact_only,
             match_method=args.match_method,
-            verbose=args.verbose,
         )
         print_evidence_report(evidence_result, mode=args.retrieval_mode)
+
+        # 逐条打印匹配详情
+        second_label = evidence_result["summary"].get("match_method", "fuzzy")
+        if second_label == "exact":
+            second_label = "fuzzy"
+        print_per_query_details(evidence_result["verbose_data"], second_label)
+
         full_result["evidence_retrieval"] = evidence_result
 
         # 保存 CSV + summary MD
@@ -1037,18 +870,14 @@ def main():
         print(f"\n  证据详细结果 (CSV): {csv_path}")
         print(f"  证据汇总报告 (MD):  {md_path}")
 
-        # 保存 verbose JSON（如果启用）
-        if args.verbose and "verbose_data" in evidence_result:
-            verbose_path = save_evidence_verbose(evidence_result["verbose_data"], args.output_dir)
-            print(f"  证据匹配详情 (JSON): {verbose_path}")
-
-    # ── 生成评测（LLM-as-Judge）── 仅在 all 模式下运行
-    gen_result = None
-    if args.mode == "all" and not args.retrieval_only:
-        print("\n── 生成评测 (LLM-as-Judge) ──")
-        gen_result = eval_generation(entries, top_k=args.top_k, mode=args.retrieval_mode)
-        print_generation_report(gen_result)
-        full_result["generation"] = gen_result
+        # 仅保存 exact 未命中的详匹配情到 JSON，避免干扰
+        failed = [v for v in evidence_result["verbose_data"] if not v["exact_summary"]["hit@5"]]
+        if failed:
+            detail_json_path = Path(args.output_dir) / "证据匹配详情_未命中.json"
+            detail_json_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(detail_json_path, "w", encoding="utf-8") as f:
+                json.dump(failed, f, ensure_ascii=False, indent=2)
+            print(f"  未命中详情 (JSON, {len(failed)}条): {detail_json_path}")
 
     # ── JSON 输出 ──
     if args.output:
