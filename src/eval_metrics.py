@@ -546,3 +546,163 @@ def make_fuzzy_matcher(
             partial_ratio_threshold=partial_ratio_threshold,
         )
     return match
+
+
+# ═══════════════════════════════════════════════════════════════
+# 8. Evidence Unit 支持（长 evidence 跨 chunk 评估）
+# ═══════════════════════════════════════════════════════════════
+
+def get_evidence_units(entry: dict) -> list[str]:
+    """从评测样本中提取 evidence_units。
+
+    向后兼容：
+    - 如果有 `evidence_units` 字段，使用它
+    - 否则从 `evidence` 数组中提取所有 quote，每个 quote 作为一个 unit
+
+    Args:
+        entry: 评测样本 dict
+
+    Returns:
+        evidence unit 文本列表
+    """
+    # 优先使用 evidence_units
+    if "evidence_units" in entry and entry["evidence_units"]:
+        return [u for u in entry["evidence_units"] if u and u.strip()]
+
+    # 向后兼容：从 evidence 中提取
+    evidence_list = entry.get("evidence", [])
+    if evidence_list:
+        return [ev.get("quote", "") for ev in evidence_list if ev.get("quote", "").strip()]
+
+    return []
+
+
+def build_retrieved_context(chunks: list[dict], k: int) -> str:
+    """将 top-k retrieved chunks 的文本拼接为检索上下文。
+
+    拼接时使用换行符分隔，供 evidence unit 匹配使用。
+
+    Args:
+        chunks: retrieved chunks 列表
+        k: 取前 k 个 chunk
+
+    Returns:
+        拼接后的文本
+    """
+    texts = []
+    for chunk in chunks[:k]:
+        text = chunk.get("body_text", chunk.get("text", ""))
+        if text:
+            texts.append(text)
+    return "\n".join(texts)
+
+
+def match_evidence_unit_in_context(
+    unit_text: str,
+    context_text: str,
+    match_fn,
+) -> tuple[bool, dict]:
+    """判断一个 evidence unit 是否在检索上下文（拼接后的 top-k chunk 文本）中命中。
+
+    匹配流程：
+    1. 先做 normalized exact containment（unit 归一化后是 context 归一化后的子串）
+    2. 如果 exact 不命中，再用 fuzzy matching
+
+    Args:
+        unit_text: evidence unit 原文
+        context_text: 拼接后的 top-k chunk 文本
+        match_fn: 匹配函数，签名为 (quote, chunk_text) -> (bool, scores_dict)
+
+    Returns:
+        (is_match, scores_dict)
+    """
+    if not unit_text or not context_text:
+        return False, {"exact_match": False, "containment": 0.0, "rouge_l": 0.0, "partial_ratio": 0.0}
+
+    u_norm = normalize_text(unit_text)
+    c_norm = normalize_text(context_text)
+
+    if not u_norm or not c_norm:
+        return False, {"exact_match": False, "containment": 0.0, "rouge_l": 0.0, "partial_ratio": 0.0}
+
+    # Step 1: normalized exact containment
+    if u_norm in c_norm:
+        return True, {
+            "exact_match": True,
+            "containment": 1.0,
+            "rouge_l": 1.0,
+            "partial_ratio": 1.0,
+        }
+
+    # Step 2: fuzzy matching (on the full context)
+    return match_fn(unit_text, context_text)
+
+
+def compute_evidence_unit_metrics(
+    chunks: list[dict],
+    evidence_units: list[str],
+    k: int,
+    match_fn,
+) -> dict:
+    """计算 evidence unit 级别的检索指标。
+
+    将 top-k chunks 的文本拼接后，逐一检查每个 evidence unit 是否命中。
+
+    Args:
+        chunks: retrieved chunks 列表
+        evidence_units: evidence unit 文本列表
+        k: 取前 k 个 chunk
+        match_fn: 匹配函数
+
+    Returns:
+        {
+            "evidence_unit_total": int,
+            "evidence_unit_hit_count": int,
+            "evidence_unit_recall": float,
+            "evidence_group_hit": bool (1 if >=1 unit matched),
+            "matched_units": [matched unit texts],
+            "missing_units": [missing unit texts],
+            "unit_details": [{unit, is_match, scores}, ...],
+        }
+    """
+    total = len(evidence_units)
+    if total == 0:
+        return {
+            "evidence_unit_total": 0,
+            "evidence_unit_hit_count": 0,
+            "evidence_unit_recall": 0.0,
+            "evidence_group_hit": False,
+            "matched_units": [],
+            "missing_units": [],
+            "unit_details": [],
+        }
+
+    context_text = build_retrieved_context(chunks, k)
+
+    matched_units = []
+    missing_units = []
+    unit_details = []
+    hit_count = 0
+
+    for unit_text in evidence_units:
+        is_match, scores = match_evidence_unit_in_context(unit_text, context_text, match_fn)
+        unit_details.append({
+            "unit": unit_text,
+            "is_match": is_match,
+            "scores": scores,
+        })
+        if is_match:
+            hit_count += 1
+            matched_units.append(unit_text)
+        else:
+            missing_units.append(unit_text)
+
+    return {
+        "evidence_unit_total": total,
+        "evidence_unit_hit_count": hit_count,
+        "evidence_unit_recall": hit_count / total,
+        "evidence_group_hit": hit_count > 0,
+        "matched_units": matched_units,
+        "missing_units": missing_units,
+        "unit_details": unit_details,
+    }

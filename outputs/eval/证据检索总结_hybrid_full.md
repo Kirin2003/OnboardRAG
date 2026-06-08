@@ -14,6 +14,18 @@
 | Recall@3 | 57.05% | 78.21% |
 | Recall@5 | 62.18% | 85.26% |
 
+## Evidence Unit 指标
+
+| 指标 | 值 |
+|------|----|
+| 平均 Unit 数 | 3.2 |
+| Unit Recall@3 | 77.68% |
+| Unit Recall@5 | 86.52% |
+| 平均命中 Unit@3 | 1.6 |
+| 平均命中 Unit@5 | 2.1 |
+| Group Hit@3 | 84.62% |
+| Group Hit@5 | 96.15% |
+
 ## 按意图分组
 
 | 意图 | 样本数 | 精确 Hit@5 | 模糊匹配 Hit@5 | 精确 MRR | 模糊匹配 MRR | 模糊匹配 Recall@5 |

@@ -13,6 +13,30 @@
         "normalized": "报到时需向公司提供录用通知书体检证明或健康证离职证明原件身份证原件及复印件1寸彩色证件照户口本原件及复印件银行卡账户学历证书原件及复印件各类职称或技术等级证书原件及复印件"
       }
     ],
+    "evidence_units": [
+      "报到时需向公司提供：《录用通知书》、体检证明或健康证、《离职证明》原件、身份证原件及复印件、1寸彩色证件照、户口本原件及复印件、银行卡账户、学历证书原件及复印件、各类职称或技术等级证书原件及复印件。"
+    ],
+    "evidence_unit_total": 1,
+    "evidence_unit_matched@5": [],
+    "evidence_unit_missing@5": [
+      "报到时需向公司提供：《录用通知书》、体检证明或健康证、《离职证明》原件、身份证原件及复印件、1寸彩色证件照、户口本原件及复印件、银行卡账户、学历证书原件及复印件、各类职称或技术等级证书原件及复印件。"
+    ],
+    "evidence_unit_recall@3": 0.0,
+    "evidence_unit_recall@5": 0.0,
+    "evidence_group_hit@3": false,
+    "evidence_group_hit@5": false,
+    "evidence_unit_details": [
+      {
+        "unit": "报到时需向公司提供：《录用通知书》、体检证明或健康证、《离职证明》原件、身份证原件及复印件、1寸彩色证件照、户口本原件及复印件、银行卡账户、学历证书原件及复印件、各类职称或技术等级证书原件及复印件。",
+        "is_match": false,
+        "scores": {
+          "containment": 0.0145,
+          "rouge_l": 0.3176,
+          "partial_ratio": 0.0145,
+          "exact_match": false
+        }
+      }
+    ],
     "retrieved_chunks": [
       {
         "rank": 1,
@@ -205,6 +229,27 @@
         }
       }
     ],
+    "top_k_chunk_ids": [
+      "employee_handbook_s59_c88",
+      "employee_handbook_s65_c114",
+      "employee_handbook_s69_c132",
+      "employee_handbook_s60_c98",
+      "employee_handbook_s59_c89"
+    ],
+    "top_k_doc_names": [
+      "员工手册.pdf",
+      "员工手册.pdf",
+      "员工手册.pdf",
+      "员工手册.pdf",
+      "员工手册.pdf"
+    ],
+    "top_k_section_names": [
+      "员工手册",
+      "员工手册",
+      "员工手册",
+      "员工手册",
+      "员工手册"
+    ],
     "exact_summary": {
       "hit@3": false,
       "hit@5": false,
@@ -232,6 +277,295 @@
       {
         "quote": "员工存在以下情形的，将被视为不符合录用条件，公司可以通知员工解除劳动合同：4.1 不能按要求完成工作任务，或达不到岗位任职要求；4.2 在试用期满前，规定入职手续无法齐备的（包括但不限于在规定时间内提供全部入职个人资料、签署劳动合同等入职材料、按要求办理社保公积金转入等）；4.3 试用期未参加入职培训或者入职培训结业考试不合格的；4.4 试用期期间受记过及以上处分者；4.5 试用期内出勤率低于85%（计算公式：试用期实际出勤日/试用期应出勤日）、迟到早退累计达三次（或以上），或有旷工现象的；4.6 违反诚信原则、回避原则，或有欺骗、隐瞒行为者（包括但不限于伪造学历、工作经历、证书，个人提供的简历、入职登记信息、健康状况等与真实情况不符）；4.7 曾经被公司辞退或未经批准擅自离职者；4.8 价值观及/或能力考核不合格（价值观及/或能力考核低于3分）；4.9 判处有期徒刑，尚在服刑者；4.10 被剥夺公民权利者；4.11 通缉在案者；4.12 未满16周岁者；4.13 属于传染性疾病病原携带者、或患有其他严重疾病；4.14 患有精神病的；4.15 实施违反国家法律法规的行为或严重不道德行为，如加入邪教组织、恐怖组织，酗酒、吸毒、赌博、嫖娼者；4.16 入职本公司将违反竞业限制义务的；4.17 拖欠他人重大债务或进入法院执行程序未偿还债务者；4.18 在校学生；4.19 与其他单位尚未解除劳动关系者；4.20 不具备政府规定的就业手续者；4.21 法律、法规等规定的其他不得录用者；4.22 严重违反公司制度行为的；4.23 公司认为不符合录用条件的其他情况。",
         "normalized": "员工存在以下情形的将被视为不符合录用条件公司可以通知员工解除劳动合同41不能按要求完成工作任务或达不到岗位任职要求42在试用期满前规定入职手续无法齐备的包括但不限于在规定时间内提供全部入职个人资料签署劳动合同等入职材料按要求办理社保公积金转入等43试用期未参加入职培训或者入职培训结业考试不合格的44试用期期间受记过及以上处分者45试用期内出勤率低于85计算公式试用期实际出勤日试用期应出勤日迟到早退累计达三次或以上或有旷工现象的46违反诚信原则回避原则或有欺骗隐瞒行为者包括但不限于伪造学历工作经历证书个人提供的简历入职登记信息健康状况等与真实情况不符47曾经被公司辞退或未经批准擅自离职者48价值观及或能力考核不合格价值观及或能力考核低于3分49判处有期徒刑尚在服刑者410被剥夺公民权利者411通缉在案者412未满16周岁者413属于传染性疾病病原携带者或患有其他严重疾病414患有精神病的415实施违反国家法律法规的行为或严重不道德行为如加入邪教组织恐怖组织酗酒吸毒赌博嫖娼者416入职本公司将违反竞业限制义务的417拖欠他人重大债务或进入法院执行程序未偿还债务者418在校学生419与其他单位尚未解除劳动关系者420不具备政府规定的就业手续者421法律法规等规定的其他不得录用者422严重违反公司制度行为的423公司认为不符合录用条件的其他情况"
+      }
+    ],
+    "evidence_units": [
+      "员工存在以下情形的，将被视为不符合录用条件，公司可以通知员工解除劳动合同：4.1 不能按要求完成工作任务，或达不到岗位任职要求；",
+      "4.2 在试用期满前，规定入职手续无法齐备的（包括但不限于在规定时间内提供全部入职个人资料、签署劳动合同等入职材料、按要求办理社保公积金转入等）",
+      "4.3 试用期未参加入职培训或者入职培训结业考试不合格的",
+      "4.4 试用期期间受记过及以上处分者",
+      "4.5 试用期内出勤率低于85%（计算公式：试用期实际出勤日/试用期应出勤日）、迟到早退累计达三次（或以上），或有旷工现象的",
+      "4.6 违反诚信原则、回避原则，或有欺骗、隐瞒行为者（包括但不限于伪造学历、工作经历、证书，个人提供的简历、入职登记信息、健康状况等与真实情况不符）",
+      "4.7 曾经被公司辞退或未经批准擅自离职者",
+      "4.8 价值观及/或能力考核不合格（价值观及/或能力考核低于3分）",
+      "4.9 判处有期徒刑，尚在服刑者",
+      "4.10 被剥夺公民权利者",
+      "4.11 通缉在案者",
+      "4.12 未满16周岁者",
+      "4.13 属于传染性疾病病原携带者、或患有其他严重疾病",
+      "4.14 患有精神病的",
+      "4.15 实施违反国家法律法规的行为或严重不道德行为，如加入邪教组织、恐怖组织，酗酒、吸毒、赌博、嫖娼者",
+      "4.16 入职本公司将违反竞业限制义务的",
+      "4.17 拖欠他人重大债务或进入法院执行程序未偿还债务者",
+      "4.18 在校学生",
+      "4.19 与其他单位尚未解除劳动关系者",
+      "4.20 不具备政府规定的就业手续者",
+      "4.21 法律、法规等规定的其他不得录用者",
+      "4.22 严重违反公司制度行为的",
+      "4.23 公司认为不符合录用条件的其他情况"
+    ],
+    "evidence_unit_total": 23,
+    "evidence_unit_matched@5": [
+      "员工存在以下情形的，将被视为不符合录用条件，公司可以通知员工解除劳动合同：4.1 不能按要求完成工作任务，或达不到岗位任职要求；",
+      "4.2 在试用期满前，规定入职手续无法齐备的（包括但不限于在规定时间内提供全部入职个人资料、签署劳动合同等入职材料、按要求办理社保公积金转入等）",
+      "4.3 试用期未参加入职培训或者入职培训结业考试不合格的",
+      "4.16 入职本公司将违反竞业限制义务的",
+      "4.17 拖欠他人重大债务或进入法院执行程序未偿还债务者",
+      "4.18 在校学生",
+      "4.19 与其他单位尚未解除劳动关系者",
+      "4.20 不具备政府规定的就业手续者",
+      "4.21 法律、法规等规定的其他不得录用者",
+      "4.22 严重违反公司制度行为的",
+      "4.23 公司认为不符合录用条件的其他情况"
+    ],
+    "evidence_unit_missing@5": [
+      "4.4 试用期期间受记过及以上处分者",
+      "4.5 试用期内出勤率低于85%（计算公式：试用期实际出勤日/试用期应出勤日）、迟到早退累计达三次（或以上），或有旷工现象的",
+      "4.6 违反诚信原则、回避原则，或有欺骗、隐瞒行为者（包括但不限于伪造学历、工作经历、证书，个人提供的简历、入职登记信息、健康状况等与真实情况不符）",
+      "4.7 曾经被公司辞退或未经批准擅自离职者",
+      "4.8 价值观及/或能力考核不合格（价值观及/或能力考核低于3分）",
+      "4.9 判处有期徒刑，尚在服刑者",
+      "4.10 被剥夺公民权利者",
+      "4.11 通缉在案者",
+      "4.12 未满16周岁者",
+      "4.13 属于传染性疾病病原携带者、或患有其他严重疾病",
+      "4.14 患有精神病的",
+      "4.15 实施违反国家法律法规的行为或严重不道德行为，如加入邪教组织、恐怖组织，酗酒、吸毒、赌博、嫖娼者"
+    ],
+    "evidence_unit_recall@3": 0.4783,
+    "evidence_unit_recall@5": 0.4783,
+    "evidence_group_hit@3": true,
+    "evidence_group_hit@5": true,
+    "evidence_unit_details": [
+      {
+        "unit": "员工存在以下情形的，将被视为不符合录用条件，公司可以通知员工解除劳动合同：4.1 不能按要求完成工作任务，或达不到岗位任职要求；",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "4.2 在试用期满前，规定入职手续无法齐备的（包括但不限于在规定时间内提供全部入职个人资料、签署劳动合同等入职材料、按要求办理社保公积金转入等）",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "4.3 试用期未参加入职培训或者入职培训结业考试不合格的",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "4.4 试用期期间受记过及以上处分者",
+        "is_match": false,
+        "scores": {
+          "containment": 0.1429,
+          "rouge_l": 0.6875,
+          "partial_ratio": 0.0714,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4.5 试用期内出勤率低于85%（计算公式：试用期实际出勤日/试用期应出勤日）、迟到早退累计达三次（或以上），或有旷工现象的",
+        "is_match": false,
+        "scores": {
+          "containment": 0.0435,
+          "rouge_l": 0.549,
+          "partial_ratio": 0.0435,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4.6 违反诚信原则、回避原则，或有欺骗、隐瞒行为者（包括但不限于伪造学历、工作经历、证书，个人提供的简历、入职登记信息、健康状况等与真实情况不符）",
+        "is_match": false,
+        "scores": {
+          "containment": 0.1,
+          "rouge_l": 0.4032,
+          "partial_ratio": 0.0667,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4.7 曾经被公司辞退或未经批准擅自离职者",
+        "is_match": false,
+        "scores": {
+          "containment": 0.0,
+          "rouge_l": 0.6316,
+          "partial_ratio": 0.0,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4.8 价值观及/或能力考核不合格（价值观及/或能力考核低于3分）",
+        "is_match": false,
+        "scores": {
+          "containment": 0.2222,
+          "rouge_l": 0.5926,
+          "partial_ratio": 0.2222,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4.9 判处有期徒刑，尚在服刑者",
+        "is_match": false,
+        "scores": {
+          "containment": 0.0,
+          "rouge_l": 0.4615,
+          "partial_ratio": 0.0,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4.10 被剥夺公民权利者",
+        "is_match": false,
+        "scores": {
+          "containment": 0.0,
+          "rouge_l": 0.5455,
+          "partial_ratio": 0.0,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4.11 通缉在案者",
+        "is_match": false,
+        "scores": {
+          "containment": 0.0,
+          "rouge_l": 0.75,
+          "partial_ratio": 0.0,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4.12 未满16周岁者",
+        "is_match": false,
+        "scores": {
+          "containment": 0.0,
+          "rouge_l": 0.9,
+          "partial_ratio": 0.0,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4.13 属于传染性疾病病原携带者、或患有其他严重疾病",
+        "is_match": false,
+        "scores": {
+          "containment": 0.0,
+          "rouge_l": 0.4583,
+          "partial_ratio": 0.0,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4.14 患有精神病的",
+        "is_match": false,
+        "scores": {
+          "containment": 0.0,
+          "rouge_l": 0.5556,
+          "partial_ratio": 0.0,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4.15 实施违反国家法律法规的行为或严重不道德行为，如加入邪教组织、恐怖组织，酗酒、吸毒、赌博、嫖娼者",
+        "is_match": false,
+        "scores": {
+          "containment": 0.0476,
+          "rouge_l": 0.4318,
+          "partial_ratio": 0.0476,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4.16 入职本公司将违反竞业限制义务的",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "4.17 拖欠他人重大债务或进入法院执行程序未偿还债务者",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "4.18 在校学生",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "4.19 与其他单位尚未解除劳动关系者",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "4.20 不具备政府规定的就业手续者",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "4.21 法律、法规等规定的其他不得录用者",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "4.22 严重违反公司制度行为的",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "4.23 公司认为不符合录用条件的其他情况",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
       }
     ],
     "retrieved_chunks": [
@@ -426,6 +760,27 @@
         }
       }
     ],
+    "top_k_chunk_ids": [
+      "employee_handbook_s59_c89",
+      "employee_handbook_s59_c91",
+      "employee_handbook_s60_c98",
+      "employee_handbook_s59_c88",
+      "employee_handbook_s59_c87"
+    ],
+    "top_k_doc_names": [
+      "员工手册.pdf",
+      "员工手册.pdf",
+      "员工手册.pdf",
+      "员工手册.pdf",
+      "员工手册.pdf"
+    ],
+    "top_k_section_names": [
+      "员工手册",
+      "员工手册",
+      "员工手册",
+      "员工手册",
+      "员工手册"
+    ],
     "exact_summary": {
       "hit@3": false,
       "hit@5": false,
@@ -453,6 +808,30 @@
       {
         "quote": "有四种登录方式：01 扫码登录（微信/企业微信APP）；02 验证码登录；03 账号密码登录；04 QQ登录",
         "normalized": "有四种登录方式01扫码登录微信企业微信app02验证码登录03账号密码登录04qq登录"
+      }
+    ],
+    "evidence_units": [
+      "有四种登录方式：01 扫码登录（微信/企业微信APP）；02 验证码登录；03 账号密码登录；04 QQ登录"
+    ],
+    "evidence_unit_total": 1,
+    "evidence_unit_matched@5": [
+      "有四种登录方式：01 扫码登录（微信/企业微信APP）；02 验证码登录；03 账号密码登录；04 QQ登录"
+    ],
+    "evidence_unit_missing@5": [],
+    "evidence_unit_recall@3": 1.0,
+    "evidence_unit_recall@5": 1.0,
+    "evidence_group_hit@3": true,
+    "evidence_group_hit@5": true,
+    "evidence_unit_details": [
+      {
+        "unit": "有四种登录方式：01 扫码登录（微信/企业微信APP）；02 验证码登录；03 账号密码登录；04 QQ登录",
+        "is_match": true,
+        "scores": {
+          "containment": 0.8684,
+          "rouge_l": 1.0,
+          "partial_ratio": 0.5263,
+          "exact_match": false
+        }
       }
     ],
     "retrieved_chunks": [
@@ -647,6 +1026,27 @@
         }
       }
     ],
+    "top_k_chunk_ids": [
+      "oa_manual_s1_c0",
+      "account_portal_md_c22",
+      "account_portal_md_c19",
+      "account_portal_md_c25",
+      "account_portal_md_c21"
+    ],
+    "top_k_doc_names": [
+      "OA系统使用手册.pdf",
+      "统一门户账号与安全.md",
+      "统一门户账号与安全.md",
+      "统一门户账号与安全.md",
+      "统一门户账号与安全.md"
+    ],
+    "top_k_section_names": [
+      "OA系统使用手册",
+      "统一门户账号与安全",
+      "统一门户账号与安全",
+      "统一门户账号与安全",
+      "统一门户账号与安全"
+    ],
     "exact_summary": {
       "hit@3": false,
       "hit@5": false,
@@ -674,6 +1074,175 @@
       {
         "quote": "#### A. **Windows系统**\n\n1) 基于X86/X64处理器的Windows 10和11系统\n\n　a) 新版本 [ps-pulse-win-22.7r1.0](./software/ps-pulse-win-22.7r1.0-b28369-64bit-installer.msi)\n\n　b) 旧版本 [ps-pulse-win64-9.1r13.1](./software/ps-pulse-win64-9.1r13.1.msi)\n\n2) 基于X86/X64处理器的Windows7及之前版本 --->[pulse-win64-5.3r4.0（64位）](./software/pulse-win64-5.3r4.0.msi)、[pulse-win32-5.3r4.0.msi（32位）](./software/pulse-win32-5.3r4.0.msi)。\n\n3) 基于ARM处理器的 Windows系统\n\n　a)新版本[ps-pulse-win-22.7r1.0-b28369-ARM64bit-installer.msi](./software/ps-pulse-win-22.7r1.0-b28369-ARM64bit-installer.msi)\n\n　b) 旧版本 [ps-pulse-win-9.1r14.0-ARM64bitinstaller.msi](./software/ps-pulse-win-9.1r14.0-ARM64bitinstaller.msi)\n\n#### B. **MAC OS系统**\n\n1) macOS Sequoia 15.3 或 M3芯片系列 --->[ps-pulse-mac-22.8r1.dmg](./software/ps-pulse-mac-22.8r1.dmg)\n\n2) macOS Sonoma 14.4及以上 --->[ps-pulse-mac-22.7r3.dmg](./software/ps-pulse-mac-22.7r3-b30227-installer.dmg)\n\n3) macOS Sonoma 14以上 --->[ps-pulse-mac-22.7r1.0.dmg](./software/ps-pulse-mac-22.7r1.0.dmg)\n\n4) macOS Ventura 13以上 --->[ps-pulse-mac-22.6r1.0](./software/ps-pulse-mac-22.6r1.0-b26825-installer.dmg)\n\n5) macOS Monterey 12 及之下 --->[ps-pulse-mac-9.1r15.4](./software/ps-pulse-mac-9.1r15.2-b17113-installer.dmg)\n\n若安装时系统提示“无法打开安装包，此软件需要更新”等信息，请进系统偏好-安全与隐私-通用（一般），选择允许任意来源的App安装，然后再重新安装。\n\nmacOS早期版本 --->[JunosPulse.dmg](./software/JunosPulse.dmg)\n\n#### C. **Linux系统**\n\n1)[ps-pulse-22.7r1.0-b28369-package.pkg](./software/ps-pulse-22.7r1.0-b28369-package.pkg)\n\n2)[ps-pulse-linux-22.8r2.deb](./software/ps-pulse-linux-22.8r2-b33497-64bit-installer.deb)\n\n若安装过程中系统提示需要libwebkit2gtk-4.0-37库，请参考[https://github.com/bambulab/BambuStudio/issues/3973#issuecomment-2085476683](https://github.com/bambulab/BambuStudio/issues/3973#issuecomment-2085476683)解决。\n\n3)[ps-pulse-linux-22.7r1.0-b28369-64bit-installer.rpm](./software/ps-pulse-linux-22.7r1.0-b28369-64bit-installer.rpm)\n\n4)[ps-pulse-linux-rhel7-22.7r1.0-b28369.rpm](./software/ps-pulse-linux-rhel7-22.7r1.0-b28369.rpm)\n\nD. **苹果IOS系统**，在AppStore搜索并安装Ivanti Secure Access Client的App，并在App首页的url填写vpn.pku.edu.cn或pacvpn.pku.edu.cn。\n\nE. **安卓系统**，请在应用宝搜索安装Ivanti Secure Access Client或Pulse Secure的App或点击下载安装（[22.4.1版本](./software/IvantiSecureAccessClient-22.4.1.apk)、[9.8版本](./software/pulse-secure9.8.apk)、[9.5版本](./software/net.pulsesecure-9.5.apk)、[7.2.1版本](./software/Pulse_Secure_v7.2.1.apk)、[5.0.3版本](./software/JunosPulse_5.0.3.44997.apk)）",
         "normalized": "awindows系统1基于x86x64处理器的windows10和11系统a新版本pspulsewin227r10softwarepspulsewin227r10b2836964bitinstallermsib旧版本pspulsewin6491r131softwarepspulsewin6491r131msi2基于x86x64处理器的windows7及之前版本pulsewin6453r4064位softwarepulsewin6453r40msipulsewin3253r40msi32位softwarepulsewin3253r40msi3基于arm处理器的windows系统a新版本pspulsewin227r10b28369arm64bitinstallermsisoftwarepspulsewin227r10b28369arm64bitinstallermsib旧版本pspulsewin91r140arm64bitinstallermsisoftwarepspulsewin91r140arm64bitinstallermsibmacos系统1macossequoia153或m3芯片系列pspulsemac228r1dmgsoftwarepspulsemac228r1dmg2macossonoma144及以上pspulsemac227r3dmgsoftwarepspulsemac227r3b30227installerdmg3macossonoma14以上pspulsemac227r10dmgsoftwarepspulsemac227r10dmg4macosventura13以上pspulsemac226r10softwarepspulsemac226r10b26825installerdmg5macosmonterey12及之下pspulsemac91r154softwarepspulsemac91r152b17113installerdmg若安装时系统提示无法打开安装包此软件需要更新等信息请进系统偏好安全与隐私通用一般选择允许任意来源的app安装然后再重新安装macos早期版本junospulsedmgsoftwarejunospulsedmgclinux系统1pspulse227r10b28369packagepkgsoftwarepspulse227r10b28369packagepkg2pspulselinux228r2debsoftwarepspulselinux228r2b3349764bitinstallerdeb若安装过程中系统提示需要libwebkit2gtk4037库请参考httpsgithubcombambulabbambustudioissues3973issuecomment2085476683httpsgithubcombambulabbambustudioissues3973issuecomment2085476683解决3pspulselinux227r10b2836964bitinstallerrpmsoftwarepspulselinux227r10b2836964bitinstallerrpm4pspulselinuxrhel7227r10b28369rpmsoftwarepspulselinuxrhel7227r10b28369rpmd苹果ios系统在appstore搜索并安装ivantisecureaccessclient的app并在app首页的url填写vpnpkueducn或pacvpnpkueducne安卓系统请在应用宝搜索安装ivantisecureaccessclient或pulsesecure的app或点击下载安装2241版本softwareivantisecureaccessclient2241apk98版本softwarepulsesecure98apk95版本softwarenetpulsesecure95apk721版本softwarepulsesecurev721apk503版本softwarejunospulse50344997apk"
+      }
+    ],
+    "evidence_units": [
+      "#### A. **Windows系统**",
+      "1) 基于X86/X64处理器的Windows 10和11系统\n\n　a) 新版本 [ps-pulse-win-22.7r1.0](./software/ps-pulse-win-22.7r1.0-b28369-64bit-installer.msi)\n\n　b) 旧版本 [ps-pulse-win64-9.1r13.1](./software/ps-pulse-win64-9.1r13.1.msi)",
+      "2) 基于X86/X64处理器的Windows7及之前版本 --->[pulse-win64-5.3r4.0（64位）](./software/pulse-win64-5.3r4.0.msi)、[pulse-win32-5.3r4.0.msi（32位）](./software/pulse-win32-5.3r4.0.msi)",
+      "3) 基于ARM处理器的 Windows系统\n\n　a)新版本[ps-pulse-win-22.7r1.0-b28369-ARM64bit-installer.msi](./software/ps-pulse-win-22.7r1.0-b28369-ARM64bit-installer.msi)\n\n　b) 旧版本 [ps-pulse-win-9.1r14.0-ARM64bitinstaller.msi](./software/ps-pulse-win-9.1r14.0-ARM64bitinstaller.msi)\n\n#### B. **MAC OS系统**",
+      "1) macOS Sequoia 15.3 或 M3芯片系列 --->[ps-pulse-mac-22.8r1.dmg](./software/ps-pulse-mac-22.8r1.dmg)",
+      "2) macOS Sonoma 14.4及以上 --->[ps-pulse-mac-22.7r3.dmg](./software/ps-pulse-mac-22.7r3-b30227-installer.dmg)",
+      "3) macOS Sonoma 14以上 --->[ps-pulse-mac-22.7r1.0.dmg](./software/ps-pulse-mac-22.7r1.0.dmg)",
+      "4) macOS Ventura 13以上 --->[ps-pulse-mac-22.6r1.0](./software/ps-pulse-mac-22.6r1.0-b26825-installer.dmg)",
+      "5) macOS Monterey 12 及之下 --->[ps-pulse-mac-9.1r15.4](./software/ps-pulse-mac-9.1r15.2-b17113-installer.dmg)\n\n若安装时系统提示“无法打开安装包，此软件需要更新”等信息，请进系统偏好-安全与隐私-通用（一般），选择允许任意来源的App安装，然后再重新安装。\n\nmacOS早期版本 --->[JunosPulse.dmg](./software/JunosPulse.dmg)\n\n#### C. **Linux系统**",
+      "1)[ps-pulse-22.7r1.0-b28369-package.pkg](./software/ps-pulse-22.7r1.0-b28369-package.pkg)",
+      "2)[ps-pulse-linux-22.8r2.deb](./software/ps-pulse-linux-22.8r2-b33497-64bit-installer.deb)\n\n若安装过程中系统提示需要libwebkit2gtk-4.0-37库，请参考[https://github.com/bambulab/BambuStudio/issues/3973#issuecomment-2085476683](https://github.com/bambulab/BambuStudio/issues/3973#issuecomment-2085476683)解决",
+      "3)[ps-pulse-linux-22.7r1.0-b28369-64bit-installer.rpm](./software/ps-pulse-linux-22.7r1.0-b28369-64bit-installer.rpm)",
+      "4)[ps-pulse-linux-rhel7-22.7r1.0-b28369.rpm](./software/ps-pulse-linux-rhel7-22.7r1.0-b28369.rpm)\n\nD. **苹果IOS系统**，在AppStore搜索并安装Ivanti Secure Access Client的App，并在App首页的url填写vpn.pku.edu.cn或pacvpn.pku.edu.cn。\n\nE. **安卓系统**，请在应用宝搜索安装Ivanti Secure Access Client或Pulse Secure的App或点击下载安装（[22.4.1版本](./software/IvantiSecureAccessClient-22.4.1.apk)、[9.8版本](./software/pulse-secure9.8.apk)、[9.5版本](./software/net.pulsesecure-9.5.apk)、[7.2.1版本](./software/Pulse_Secure_v7.2.1.apk)、[5.0.3版本](./software/JunosPulse_5.0.3.44997.apk)）"
+    ],
+    "evidence_unit_total": 13,
+    "evidence_unit_matched@5": [
+      "#### A. **Windows系统**",
+      "1) 基于X86/X64处理器的Windows 10和11系统\n\n　a) 新版本 [ps-pulse-win-22.7r1.0](./software/ps-pulse-win-22.7r1.0-b28369-64bit-installer.msi)\n\n　b) 旧版本 [ps-pulse-win64-9.1r13.1](./software/ps-pulse-win64-9.1r13.1.msi)",
+      "2) 基于X86/X64处理器的Windows7及之前版本 --->[pulse-win64-5.3r4.0（64位）](./software/pulse-win64-5.3r4.0.msi)、[pulse-win32-5.3r4.0.msi（32位）](./software/pulse-win32-5.3r4.0.msi)",
+      "3) 基于ARM处理器的 Windows系统\n\n　a)新版本[ps-pulse-win-22.7r1.0-b28369-ARM64bit-installer.msi](./software/ps-pulse-win-22.7r1.0-b28369-ARM64bit-installer.msi)\n\n　b) 旧版本 [ps-pulse-win-9.1r14.0-ARM64bitinstaller.msi](./software/ps-pulse-win-9.1r14.0-ARM64bitinstaller.msi)\n\n#### B. **MAC OS系统**",
+      "4)[ps-pulse-linux-rhel7-22.7r1.0-b28369.rpm](./software/ps-pulse-linux-rhel7-22.7r1.0-b28369.rpm)\n\nD. **苹果IOS系统**，在AppStore搜索并安装Ivanti Secure Access Client的App，并在App首页的url填写vpn.pku.edu.cn或pacvpn.pku.edu.cn。\n\nE. **安卓系统**，请在应用宝搜索安装Ivanti Secure Access Client或Pulse Secure的App或点击下载安装（[22.4.1版本](./software/IvantiSecureAccessClient-22.4.1.apk)、[9.8版本](./software/pulse-secure9.8.apk)、[9.5版本](./software/net.pulsesecure-9.5.apk)、[7.2.1版本](./software/Pulse_Secure_v7.2.1.apk)、[5.0.3版本](./software/JunosPulse_5.0.3.44997.apk)）"
+    ],
+    "evidence_unit_missing@5": [
+      "1) macOS Sequoia 15.3 或 M3芯片系列 --->[ps-pulse-mac-22.8r1.dmg](./software/ps-pulse-mac-22.8r1.dmg)",
+      "2) macOS Sonoma 14.4及以上 --->[ps-pulse-mac-22.7r3.dmg](./software/ps-pulse-mac-22.7r3-b30227-installer.dmg)",
+      "3) macOS Sonoma 14以上 --->[ps-pulse-mac-22.7r1.0.dmg](./software/ps-pulse-mac-22.7r1.0.dmg)",
+      "4) macOS Ventura 13以上 --->[ps-pulse-mac-22.6r1.0](./software/ps-pulse-mac-22.6r1.0-b26825-installer.dmg)",
+      "5) macOS Monterey 12 及之下 --->[ps-pulse-mac-9.1r15.4](./software/ps-pulse-mac-9.1r15.2-b17113-installer.dmg)\n\n若安装时系统提示“无法打开安装包，此软件需要更新”等信息，请进系统偏好-安全与隐私-通用（一般），选择允许任意来源的App安装，然后再重新安装。\n\nmacOS早期版本 --->[JunosPulse.dmg](./software/JunosPulse.dmg)\n\n#### C. **Linux系统**",
+      "1)[ps-pulse-22.7r1.0-b28369-package.pkg](./software/ps-pulse-22.7r1.0-b28369-package.pkg)",
+      "2)[ps-pulse-linux-22.8r2.deb](./software/ps-pulse-linux-22.8r2-b33497-64bit-installer.deb)\n\n若安装过程中系统提示需要libwebkit2gtk-4.0-37库，请参考[https://github.com/bambulab/BambuStudio/issues/3973#issuecomment-2085476683](https://github.com/bambulab/BambuStudio/issues/3973#issuecomment-2085476683)解决",
+      "3)[ps-pulse-linux-22.7r1.0-b28369-64bit-installer.rpm](./software/ps-pulse-linux-22.7r1.0-b28369-64bit-installer.rpm)"
+    ],
+    "evidence_unit_recall@3": 0.3846,
+    "evidence_unit_recall@5": 0.3846,
+    "evidence_group_hit@3": true,
+    "evidence_group_hit@5": true,
+    "evidence_unit_details": [
+      {
+        "unit": "#### A. **Windows系统**",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "1) 基于X86/X64处理器的Windows 10和11系统\n\n　a) 新版本 [ps-pulse-win-22.7r1.0](./software/ps-pulse-win-22.7r1.0-b28369-64bit-installer.msi)\n\n　b) 旧版本 [ps-pulse-win64-9.1r13.1](./software/ps-pulse-win64-9.1r13.1.msi)",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "2) 基于X86/X64处理器的Windows7及之前版本 --->[pulse-win64-5.3r4.0（64位）](./software/pulse-win64-5.3r4.0.msi)、[pulse-win32-5.3r4.0.msi（32位）](./software/pulse-win32-5.3r4.0.msi)",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "3) 基于ARM处理器的 Windows系统\n\n　a)新版本[ps-pulse-win-22.7r1.0-b28369-ARM64bit-installer.msi](./software/ps-pulse-win-22.7r1.0-b28369-ARM64bit-installer.msi)\n\n　b) 旧版本 [ps-pulse-win-9.1r14.0-ARM64bitinstaller.msi](./software/ps-pulse-win-9.1r14.0-ARM64bitinstaller.msi)\n\n#### B. **MAC OS系统**",
+        "is_match": true,
+        "scores": {
+          "containment": 0.8427,
+          "rouge_l": 0.7826,
+          "partial_ratio": 0.7303,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "1) macOS Sequoia 15.3 或 M3芯片系列 --->[ps-pulse-mac-22.8r1.dmg](./software/ps-pulse-mac-22.8r1.dmg)",
+        "is_match": false,
+        "scores": {
+          "containment": 0.3333,
+          "rouge_l": 0.7612,
+          "partial_ratio": 0.2708,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "2) macOS Sonoma 14.4及以上 --->[ps-pulse-mac-22.7r3.dmg](./software/ps-pulse-mac-22.7r3-b30227-installer.dmg)",
+        "is_match": false,
+        "scores": {
+          "containment": 0.4237,
+          "rouge_l": 0.7143,
+          "partial_ratio": 0.3729,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "3) macOS Sonoma 14以上 --->[ps-pulse-mac-22.7r1.0.dmg](./software/ps-pulse-mac-22.7r1.0.dmg)",
+        "is_match": false,
+        "scores": {
+          "containment": 0.4762,
+          "rouge_l": 0.7742,
+          "partial_ratio": 0.4048,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4) macOS Ventura 13以上 --->[ps-pulse-mac-22.6r1.0](./software/ps-pulse-mac-22.6r1.0-b26825-installer.dmg)",
+        "is_match": false,
+        "scores": {
+          "containment": 0.5,
+          "rouge_l": 0.7467,
+          "partial_ratio": 0.431,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "5) macOS Monterey 12 及之下 --->[ps-pulse-mac-9.1r15.4](./software/ps-pulse-mac-9.1r15.2-b17113-installer.dmg)\n\n若安装时系统提示“无法打开安装包，此软件需要更新”等信息，请进系统偏好-安全与隐私-通用（一般），选择允许任意来源的App安装，然后再重新安装。\n\nmacOS早期版本 --->[JunosPulse.dmg](./software/JunosPulse.dmg)\n\n#### C. **Linux系统**",
+        "is_match": false,
+        "scores": {
+          "containment": 0.3243,
+          "rouge_l": 0.6508,
+          "partial_ratio": 0.1824,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "1)[ps-pulse-22.7r1.0-b28369-package.pkg](./software/ps-pulse-22.7r1.0-b28369-package.pkg)",
+        "is_match": false,
+        "scores": {
+          "containment": 0.6316,
+          "rouge_l": 0.8358,
+          "partial_ratio": 0.6053,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "2)[ps-pulse-linux-22.8r2.deb](./software/ps-pulse-linux-22.8r2-b33497-64bit-installer.deb)\n\n若安装过程中系统提示需要libwebkit2gtk-4.0-37库，请参考[https://github.com/bambulab/BambuStudio/issues/3973#issuecomment-2085476683](https://github.com/bambulab/BambuStudio/issues/3973#issuecomment-2085476683)解决",
+        "is_match": false,
+        "scores": {
+          "containment": 0.2192,
+          "rouge_l": 0.5427,
+          "partial_ratio": 0.1712,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "3)[ps-pulse-linux-22.7r1.0-b28369-64bit-installer.rpm](./software/ps-pulse-linux-22.7r1.0-b28369-64bit-installer.rpm)",
+        "is_match": false,
+        "scores": {
+          "containment": 0.74,
+          "rouge_l": 0.8352,
+          "partial_ratio": 0.74,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "4)[ps-pulse-linux-rhel7-22.7r1.0-b28369.rpm](./software/ps-pulse-linux-rhel7-22.7r1.0-b28369.rpm)\n\nD. **苹果IOS系统**，在AppStore搜索并安装Ivanti Secure Access Client的App，并在App首页的url填写vpn.pku.edu.cn或pacvpn.pku.edu.cn。\n\nE. **安卓系统**，请在应用宝搜索安装Ivanti Secure Access Client或Pulse Secure的App或点击下载安装（[22.4.1版本](./software/IvantiSecureAccessClient-22.4.1.apk)、[9.8版本](./software/pulse-secure9.8.apk)、[9.5版本](./software/net.pulsesecure-9.5.apk)、[7.2.1版本](./software/Pulse_Secure_v7.2.1.apk)、[5.0.3版本](./software/JunosPulse_5.0.3.44997.apk)）",
+        "is_match": true,
+        "scores": {
+          "containment": 0.9043,
+          "rouge_l": 0.9566,
+          "partial_ratio": 0.8469,
+          "exact_match": false
+        }
       }
     ],
     "retrieved_chunks": [
@@ -868,6 +1437,27 @@
         }
       }
     ],
+    "top_k_chunk_ids": [
+      "vpn_manual_md_c4",
+      "vpn_manual_md_c13",
+      "vpn_manual_md_c9",
+      "vpn_manual_md_c3",
+      "vpn_manual_md_c17"
+    ],
+    "top_k_doc_names": [
+      "vpn使用和故障排查.md",
+      "vpn使用和故障排查.md",
+      "vpn使用和故障排查.md",
+      "vpn使用和故障排查.md",
+      "vpn使用和故障排查.md"
+    ],
+    "top_k_section_names": [
+      "VPN使用与故障排查",
+      "VPN使用与故障排查",
+      "VPN使用与故障排查",
+      "VPN使用与故障排查",
+      "VPN使用与故障排查"
+    ],
     "exact_summary": {
       "hit@3": false,
       "hit@5": false,
@@ -899,6 +1489,115 @@
       {
         "quote": "缺省配置：vpn.pku.edu.cn（全网）、pacvpn.pku.edu.cn（内网）\n\n1) 教育网链路: vpnc.pku.edu.cn（全网）、pacvpnc.pku.edu.cn（内网）\n\n2) 电信链路: vpnt.pku.edu.cn（全网）、pacvpnt.pku.edu.cn（内网）\n\n3) 联通链路: vpnu.pku.edu.cn（全网）、pacvpnu.pku.edu.cn（内网）\n\n请注意，若选择不同链路均无改善，故障在本地WI-FI网络的接入端，请咨询本地运营商。\n\n断开VPN，在Windows系统打开DOS窗口，分别ping不同链路VPN地址（如ping vpn.pku.edu.cn -t），无数据丢包、延时稳定、延时短为最优链路。",
         "normalized": "缺省配置vpnpkueducn全网pacvpnpkueducn内网1教育网链路vpncpkueducn全网pacvpncpkueducn内网2电信链路vpntpkueducn全网pacvpntpkueducn内网3联通链路vpnupkueducn全网pacvpnupkueducn内网请注意若选择不同链路均无改善故障在本地wifi网络的接入端请咨询本地运营商断开vpn在windows系统打开dos窗口分别ping不同链路vpn地址如pingvpnpkueducnt无数据丢包延时稳定延时短为最优链路"
+      }
+    ],
+    "evidence_units": [
+      "故障1：无法访问知网、电子期刊或个别网站",
+      "1). 请确认VPN登录成功：访问https://its.pku.edu.cn/显示“您正通过VPN访问校内资源”或无需登录即可访问校内门户https://portal.pku.edu.cn/",
+      "2). 检查系统内不能有翻墙或其它SOCKS代理软件，若有，需完全卸载而不是简单停用",
+      "3). VPN系统不会限制用户访问范围，试着关闭浏览器重新打开网站。\n\n若问题仍存，知网或电子资源问题请联系图书馆，网站请联系网站负责人或检查本地浏览器问题",
+      "缺省配置：vpn.pku.edu.cn（全网）、pacvpn.pku.edu.cn（内网）",
+      "1) 教育网链路: vpnc.pku.edu.cn（全网）、pacvpnc.pku.edu.cn（内网）",
+      "2) 电信链路: vpnt.pku.edu.cn（全网）、pacvpnt.pku.edu.cn（内网）",
+      "3) 联通链路: vpnu.pku.edu.cn（全网）、pacvpnu.pku.edu.cn（内网）\n\n请注意，若选择不同链路均无改善，故障在本地WI-FI网络的接入端，请咨询本地运营商。\n\n断开VPN，在Windows系统打开DOS窗口，分别ping不同链路VPN地址（如ping vpn.pku.edu.cn -t），无数据丢包、延时稳定、延时短为最优链路"
+    ],
+    "evidence_unit_total": 8,
+    "evidence_unit_matched@5": [
+      "故障1：无法访问知网、电子期刊或个别网站",
+      "1). 请确认VPN登录成功：访问https://its.pku.edu.cn/显示“您正通过VPN访问校内资源”或无需登录即可访问校内门户https://portal.pku.edu.cn/",
+      "2). 检查系统内不能有翻墙或其它SOCKS代理软件，若有，需完全卸载而不是简单停用",
+      "3). VPN系统不会限制用户访问范围，试着关闭浏览器重新打开网站。\n\n若问题仍存，知网或电子资源问题请联系图书馆，网站请联系网站负责人或检查本地浏览器问题"
+    ],
+    "evidence_unit_missing@5": [
+      "缺省配置：vpn.pku.edu.cn（全网）、pacvpn.pku.edu.cn（内网）",
+      "1) 教育网链路: vpnc.pku.edu.cn（全网）、pacvpnc.pku.edu.cn（内网）",
+      "2) 电信链路: vpnt.pku.edu.cn（全网）、pacvpnt.pku.edu.cn（内网）",
+      "3) 联通链路: vpnu.pku.edu.cn（全网）、pacvpnu.pku.edu.cn（内网）\n\n请注意，若选择不同链路均无改善，故障在本地WI-FI网络的接入端，请咨询本地运营商。\n\n断开VPN，在Windows系统打开DOS窗口，分别ping不同链路VPN地址（如ping vpn.pku.edu.cn -t），无数据丢包、延时稳定、延时短为最优链路"
+    ],
+    "evidence_unit_recall@3": 0.0,
+    "evidence_unit_recall@5": 0.5,
+    "evidence_group_hit@3": false,
+    "evidence_group_hit@5": true,
+    "evidence_unit_details": [
+      {
+        "unit": "故障1：无法访问知网、电子期刊或个别网站",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "1). 请确认VPN登录成功：访问https://its.pku.edu.cn/显示“您正通过VPN访问校内资源”或无需登录即可访问校内门户https://portal.pku.edu.cn/",
+        "is_match": true,
+        "scores": {
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 0.871,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "2). 检查系统内不能有翻墙或其它SOCKS代理软件，若有，需完全卸载而不是简单停用",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "3). VPN系统不会限制用户访问范围，试着关闭浏览器重新打开网站。\n\n若问题仍存，知网或电子资源问题请联系图书馆，网站请联系网站负责人或检查本地浏览器问题",
+        "is_match": true,
+        "scores": {
+          "exact_match": true,
+          "containment": 1.0,
+          "rouge_l": 1.0,
+          "partial_ratio": 1.0
+        }
+      },
+      {
+        "unit": "缺省配置：vpn.pku.edu.cn（全网）、pacvpn.pku.edu.cn（内网）",
+        "is_match": false,
+        "scores": {
+          "containment": 0.5455,
+          "rouge_l": 0.9091,
+          "partial_ratio": 0.4091,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "1) 教育网链路: vpnc.pku.edu.cn（全网）、pacvpnc.pku.edu.cn（内网）",
+        "is_match": false,
+        "scores": {
+          "containment": 0.44,
+          "rouge_l": 0.9189,
+          "partial_ratio": 0.28,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "2) 电信链路: vpnt.pku.edu.cn（全网）、pacvpnt.pku.edu.cn（内网）",
+        "is_match": false,
+        "scores": {
+          "containment": 0.4167,
+          "rouge_l": 0.9167,
+          "partial_ratio": 0.2917,
+          "exact_match": false
+        }
+      },
+      {
+        "unit": "3) 联通链路: vpnu.pku.edu.cn（全网）、pacvpnu.pku.edu.cn（内网）\n\n请注意，若选择不同链路均无改善，故障在本地WI-FI网络的接入端，请咨询本地运营商。\n\n断开VPN，在Windows系统打开DOS窗口，分别ping不同链路VPN地址（如ping vpn.pku.edu.cn -t），无数据丢包、延时稳定、延时短为最优链路",
+        "is_match": false,
+        "scores": {
+          "containment": 0.1966,
+          "rouge_l": 0.4861,
+          "partial_ratio": 0.1368,
+          "exact_match": false
+        }
       }
     ],
     "retrieved_chunks": [
@@ -1193,6 +1892,27 @@
         }
       }
     ],
+    "top_k_chunk_ids": [
+      "vpn_manual_md_c14",
+      "vpn_manual_md_c12",
+      "vpn_manual_md_c13",
+      "vpn_manual_md_c15",
+      "vpn_manual_md_c3"
+    ],
+    "top_k_doc_names": [
+      "vpn使用和故障排查.md",
+      "vpn使用和故障排查.md",
+      "vpn使用和故障排查.md",
+      "vpn使用和故障排查.md",
+      "vpn使用和故障排查.md"
+    ],
+    "top_k_section_names": [
+      "VPN使用与故障排查",
+      "VPN使用与故障排查",
+      "VPN使用与故障排查",
+      "VPN使用与故障排查",
+      "VPN使用与故障排查"
+    ],
     "exact_summary": {
       "hit@3": false,
       "hit@5": false,
@@ -1220,6 +1940,30 @@
       {
         "quote": "通过统一身份认证平台统一登录，将统一身份认证账号和密码登录到工作台中；登录到工作台找到高职协同办公系统点击就可以跳转到OA门户主页",
         "normalized": "通过统一身份认证平台统一登录将统一身份认证账号和密码登录到工作台中登录到工作台找到高职协同办公系统点击就可以跳转到oa门户主页"
+      }
+    ],
+    "evidence_units": [
+      "通过统一身份认证平台统一登录，将统一身份认证账号和密码登录到工作台中；登录到工作台找到高职协同办公系统点击就可以跳转到OA门户主页"
+    ],
+    "evidence_unit_total": 1,
+    "evidence_unit_matched@5": [
+      "通过统一身份认证平台统一登录，将统一身份认证账号和密码登录到工作台中；登录到工作台找到高职协同办公系统点击就可以跳转到OA门户主页"
+    ],
+    "evidence_unit_missing@5": [],
+    "evidence_unit_recall@3": 1.0,
+    "evidence_unit_recall@5": 1.0,
+    "evidence_group_hit@3": true,
+    "evidence_group_hit@5": true,
+    "evidence_unit_details": [
+      {
+        "unit": "通过统一身份认证平台统一登录，将统一身份认证账号和密码登录到工作台中；登录到工作台找到高职协同办公系统点击就可以跳转到OA门户主页",
+        "is_match": true,
+        "scores": {
+          "containment": 0.9623,
+          "rouge_l": 1.0,
+          "partial_ratio": 0.9434,
+          "exact_match": false
+        }
       }
     ],
     "retrieved_chunks": [
@@ -1414,6 +2158,27 @@
         }
       }
     ],
+    "top_k_chunk_ids": [
+      "oa_manual_s1_c0",
+      "mobile_office_manual_s47_c75",
+      "mobile_office_manual_s48_c76",
+      "mobile_office_manual_s11_c38",
+      "mobile_office_manual_s11_c37"
+    ],
+    "top_k_doc_names": [
+      "OA系统使用手册.pdf",
+      "企业内部移动办公.pdf",
+      "企业内部移动办公.pdf",
+      "企业内部移动办公.pdf",
+      "企业内部移动办公.pdf"
+    ],
+    "top_k_section_names": [
+      "OA系统使用手册",
+      "企业内部移动办公使用手册",
+      "企业内部移动办公使用手册",
+      "企业内部移动办公使用手册",
+      "企业内部移动办公使用手册"
+    ],
     "exact_summary": {
       "hit@3": false,
       "hit@5": false,
@@ -1441,6 +2206,30 @@
       {
         "quote": "入口在主页车辆-用车申请中；填写表单；请注意填写用车时间时与查看会议室占用情况一样查看车辆使用情况便可了解有无可用时段与可用车信息，以免耽误申请时间。",
         "normalized": "入口在主页车辆用车申请中填写表单请注意填写用车时间时与查看会议室占用情况一样查看车辆使用情况便可了解有无可用时段与可用车信息以免耽误申请时间"
+      }
+    ],
+    "evidence_units": [
+      "入口在主页车辆-用车申请中；填写表单；请注意填写用车时间时与查看会议室占用情况一样查看车辆使用情况便可了解有无可用时段与可用车信息，以免耽误申请时间。"
+    ],
+    "evidence_unit_total": 1,
+    "evidence_unit_matched@5": [
+      "入口在主页车辆-用车申请中；填写表单；请注意填写用车时间时与查看会议室占用情况一样查看车辆使用情况便可了解有无可用时段与可用车信息，以免耽误申请时间。"
+    ],
+    "evidence_unit_missing@5": [],
+    "evidence_unit_recall@3": 1.0,
+    "evidence_unit_recall@5": 1.0,
+    "evidence_group_hit@3": true,
+    "evidence_group_hit@5": true,
+    "evidence_unit_details": [
+      {
+        "unit": "入口在主页车辆-用车申请中；填写表单；请注意填写用车时间时与查看会议室占用情况一样查看车辆使用情况便可了解有无可用时段与可用车信息，以免耽误申请时间。",
+        "is_match": true,
+        "scores": {
+          "containment": 0.9403,
+          "rouge_l": 1.0,
+          "partial_ratio": 0.9104,
+          "exact_match": false
+        }
       }
     ],
     "retrieved_chunks": [
@@ -1635,6 +2424,27 @@
         }
       }
     ],
+    "top_k_chunk_ids": [
+      "oa_manual_s6_c4",
+      "mobile_office_manual_s48_c76",
+      "mobile_office_manual_s47_c75",
+      "oa_manual_s4_c2",
+      "oa_manual_s1_c0"
+    ],
+    "top_k_doc_names": [
+      "OA系统使用手册.pdf",
+      "企业内部移动办公.pdf",
+      "企业内部移动办公.pdf",
+      "OA系统使用手册.pdf",
+      "OA系统使用手册.pdf"
+    ],
+    "top_k_section_names": [
+      "OA系统使用手册",
+      "企业内部移动办公使用手册",
+      "企业内部移动办公使用手册",
+      "OA系统使用手册",
+      "OA系统使用手册"
+    ],
     "exact_summary": {
       "hit@3": false,
       "hit@5": false,
@@ -1662,6 +2472,30 @@
       {
         "quote": "转正申请（转正员工本人发起，附word版述职报告）。钉钉工作台--审批--人事管理--转正申请；打开转正审批单，填写对应内容，附Word版《试用期述职报告-姓名》，选择对应审批人提交。",
         "normalized": "转正申请转正员工本人发起附word版述职报告钉钉工作台审批人事管理转正申请打开转正审批单填写对应内容附word版试用期述职报告姓名选择对应审批人提交"
+      }
+    ],
+    "evidence_units": [
+      "转正申请（转正员工本人发起，附word版述职报告）。钉钉工作台--审批--人事管理--转正申请；打开转正审批单，填写对应内容，附Word版《试用期述职报告-姓名》，选择对应审批人提交。"
+    ],
+    "evidence_unit_total": 1,
+    "evidence_unit_matched@5": [
+      "转正申请（转正员工本人发起，附word版述职报告）。钉钉工作台--审批--人事管理--转正申请；打开转正审批单，填写对应内容，附Word版《试用期述职报告-姓名》，选择对应审批人提交。"
+    ],
+    "evidence_unit_missing@5": [],
+    "evidence_unit_recall@3": 1.0,
+    "evidence_unit_recall@5": 1.0,
+    "evidence_group_hit@3": true,
+    "evidence_group_hit@5": true,
+    "evidence_unit_details": [
+      {
+        "unit": "转正申请（转正员工本人发起，附word版述职报告）。钉钉工作台--审批--人事管理--转正申请；打开转正审批单，填写对应内容，附Word版《试用期述职报告-姓名》，选择对应审批人提交。",
+        "is_match": true,
+        "scores": {
+          "containment": 0.9365,
+          "rouge_l": 0.7297,
+          "partial_ratio": 0.8254,
+          "exact_match": false
+        }
       }
     ],
     "retrieved_chunks": [
@@ -1855,6 +2689,27 @@
           }
         }
       }
+    ],
+    "top_k_chunk_ids": [
+      "dingtalk_manual_s72_c141",
+      "dingtalk_manual_s71_c139",
+      "dingtalk_manual_s72_c140",
+      "dingtalk_manual_s71_c136",
+      "dingtalk_manual_s71_c137"
+    ],
+    "top_k_doc_names": [
+      "钉钉考勤.pdf",
+      "钉钉考勤.pdf",
+      "钉钉考勤.pdf",
+      "钉钉考勤.pdf",
+      "钉钉考勤.pdf"
+    ],
+    "top_k_section_names": [
+      "钉钉考勤使用说明",
+      "钉钉考勤使用说明",
+      "钉钉考勤使用说明",
+      "钉钉考勤使用说明",
+      "钉钉考勤使用说明"
     ],
     "exact_summary": {
       "hit@3": false,

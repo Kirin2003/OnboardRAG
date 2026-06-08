@@ -59,6 +59,8 @@ from src.eval_metrics import (
     evidence_hit_at_k,
     evidence_mrr,
     evidence_recall_at_k,
+    get_evidence_units,
+    compute_evidence_unit_metrics,
     make_exact_matcher,
     make_fuzzy_matcher,
     make_rouge_l_matcher,
@@ -282,6 +284,11 @@ def eval_evidence_retrieval(
     # fuzzy 计数器
     f_hit3, f_hit5, f_mrr_sum = 0, 0, 0.0
     f_rec3_sum, f_rec5_sum = 0.0, 0.0
+    # evidence unit 计数器（基于 second_match / exact）
+    eu_rec3_sum, eu_rec5_sum = 0.0, 0.0
+    eu_hit3_sum, eu_hit5_sum = 0, 0
+    eu_total_sum = 0
+    eu_group_hit3_sum, eu_group_hit5_sum = 0, 0
     total_valid = 0
 
     for entry in entries:
@@ -332,6 +339,20 @@ def eval_evidence_retrieval(
         f_hit3 += int(f_hit3_val); f_hit5 += int(f_hit5_val)
         f_mrr_sum += f_mrr_val; f_rec3_sum += f_rec3; f_rec5_sum += f_rec5
 
+        # ── Evidence Unit 指标 ──
+        evidence_units = get_evidence_units(entry)
+        unit_match_fn = second_match if second_match is not None else exact_match
+        eu_metrics_k3 = compute_evidence_unit_metrics(chunks, evidence_units, 3, unit_match_fn)
+        eu_metrics_k5 = compute_evidence_unit_metrics(chunks, evidence_units, 5, unit_match_fn)
+
+        eu_total_sum += eu_metrics_k3["evidence_unit_total"]
+        eu_rec3_sum += eu_metrics_k3["evidence_unit_recall"]
+        eu_rec5_sum += eu_metrics_k5["evidence_unit_recall"]
+        eu_hit3_sum += eu_metrics_k3["evidence_unit_hit_count"]
+        eu_hit5_sum += eu_metrics_k5["evidence_unit_hit_count"]
+        eu_group_hit3_sum += int(eu_metrics_k3["evidence_group_hit"])
+        eu_group_hit5_sum += int(eu_metrics_k5["evidence_group_hit"])
+
         # best match 详细信息
         best_chunk = best_info.get("chunk", {})
         best_scores = best_info.get("scores", {})
@@ -375,6 +396,14 @@ def eval_evidence_retrieval(
             "best_match_score_partial_ratio": best_scores.get("partial_ratio", 0.0),
             "matched_evidence_quote": matched_quote,
             "retrieved_docs_top5": " | ".join(retrieved_docs),
+            # evidence unit metrics
+            "evidence_unit_total": eu_metrics_k5["evidence_unit_total"],
+            "evidence_unit_hit_count@3": eu_metrics_k3["evidence_unit_hit_count"],
+            "evidence_unit_hit_count@5": eu_metrics_k5["evidence_unit_hit_count"],
+            "evidence_unit_recall@3": round(eu_metrics_k3["evidence_unit_recall"], 4),
+            "evidence_unit_recall@5": round(eu_metrics_k5["evidence_unit_recall"], 4),
+            "evidence_group_hit@3": eu_metrics_k3["evidence_group_hit"],
+            "evidence_group_hit@5": eu_metrics_k5["evidence_group_hit"],
         })
 
         # ── 详细匹配信息（始终收集，每样本一条）──
@@ -429,7 +458,19 @@ def eval_evidence_retrieval(
             "difficulty": entry.get("difficulty", ""),
             "expected_docs": entry.get("expected_docs", []),
             "evidence": ev_details,
+            "evidence_units": evidence_units,
+            "evidence_unit_total": eu_metrics_k5["evidence_unit_total"],
+            "evidence_unit_matched@5": eu_metrics_k5["matched_units"],
+            "evidence_unit_missing@5": eu_metrics_k5["missing_units"],
+            "evidence_unit_recall@3": round(eu_metrics_k3["evidence_unit_recall"], 4),
+            "evidence_unit_recall@5": round(eu_metrics_k5["evidence_unit_recall"], 4),
+            "evidence_group_hit@3": eu_metrics_k3["evidence_group_hit"],
+            "evidence_group_hit@5": eu_metrics_k5["evidence_group_hit"],
+            "evidence_unit_details": eu_metrics_k5["unit_details"],
             "retrieved_chunks": chunk_details,
+            "top_k_chunk_ids": [c.get("chunk_id", "") for c in chunks[:5]],
+            "top_k_doc_names": [c.get("source_file", "") for c in chunks[:5]],
+            "top_k_section_names": [c.get("doc_title", "") for c in chunks[:5]],
             "exact_summary": {
                 "hit@3": e_hit3_val,
                 "hit@5": e_hit5_val,
@@ -469,6 +510,14 @@ def eval_evidence_retrieval(
         f"{second_label}_mrr": round(f_mrr_sum / n, 4) if second_match is not None else None,
         f"{second_label}_recall@3": round(f_rec3_sum / n, 4) if second_match is not None else None,
         f"{second_label}_recall@5": round(f_rec5_sum / n, 4) if second_match is not None else None,
+        # evidence unit 指标
+        "evidence_unit_total_avg": round(eu_total_sum / n, 2) if n else 0,
+        "evidence_unit_recall@3": round(eu_rec3_sum / n, 4) if n else 0,
+        "evidence_unit_recall@5": round(eu_rec5_sum / n, 4) if n else 0,
+        "evidence_unit_hit_count_avg@3": round(eu_hit3_sum / n, 2) if n else 0,
+        "evidence_unit_hit_count_avg@5": round(eu_hit5_sum / n, 2) if n else 0,
+        "evidence_group_hit@3": round(eu_group_hit3_sum / n, 4) if n else 0,
+        "evidence_group_hit@5": round(eu_group_hit5_sum / n, 4) if n else 0,
     }
 
     result = {"summary": summary, "details": results, "verbose_data": verbose_data}
@@ -566,6 +615,11 @@ def save_evidence_results(
         "best_match_score_containment", "best_match_score_rouge_l",
         "best_match_score_partial_ratio", "matched_evidence_quote",
         "retrieved_docs_top5",
+        # evidence unit fields
+        "evidence_unit_total",
+        "evidence_unit_hit_count@3", "evidence_unit_hit_count@5",
+        "evidence_unit_recall@3", "evidence_unit_recall@5",
+        "evidence_group_hit@3", "evidence_group_hit@5",
     ])
     with open(csv_path, "w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=csv_fields, extrasaction="ignore")
@@ -601,6 +655,18 @@ def save_evidence_results(
             f.write(f"| MRR | {summary['exact_mrr']:.4f} | {summary[f'{second_label}_mrr']:.4f} |\n")
             f.write(f"| Recall@3 | {summary['exact_recall@3']:.2%} | {summary[f'{second_label}_recall@3']:.2%} |\n")
             f.write(f"| Recall@5 | {summary['exact_recall@5']:.2%} | {summary[f'{second_label}_recall@5']:.2%} |\n")
+
+        # Evidence Unit 指标
+        f.write("\n## Evidence Unit 指标\n\n")
+        f.write(f"| 指标 | 值 |\n")
+        f.write("|------|----|\n")
+        f.write(f"| 平均 Unit 数 | {summary['evidence_unit_total_avg']:.1f} |\n")
+        f.write(f"| Unit Recall@3 | {summary['evidence_unit_recall@3']:.2%} |\n")
+        f.write(f"| Unit Recall@5 | {summary['evidence_unit_recall@5']:.2%} |\n")
+        f.write(f"| 平均命中 Unit@3 | {summary['evidence_unit_hit_count_avg@3']:.1f} |\n")
+        f.write(f"| 平均命中 Unit@5 | {summary['evidence_unit_hit_count_avg@5']:.1f} |\n")
+        f.write(f"| Group Hit@3 | {summary['evidence_group_hit@3']:.2%} |\n")
+        f.write(f"| Group Hit@5 | {summary['evidence_group_hit@5']:.2%} |\n")
 
         # 按意图分组
         group_data = _group_metrics(details, "intent", second_label)
@@ -689,6 +755,14 @@ def print_evidence_report(result: dict, mode: str = "hybrid") -> None:
         print(f"  {'Recall@3':<18} {summary['exact_recall@3']:<10.2%} {summary[f'{second_label}_recall@3']:<10.2%}")
         print(f"  {'Recall@5':<18} {summary['exact_recall@5']:<10.2%} {summary[f'{second_label}_recall@5']:<10.2%}")
 
+    # Evidence Unit 指标
+    print(f"\n  ── Evidence Unit 指标 ──")
+    print(f"  {'平均Unit数':<16} {summary['evidence_unit_total_avg']:<10.1f}")
+    print(f"  {'Unit Recall@3':<16} {summary['evidence_unit_recall@3']:<10.2%}")
+    print(f"  {'Unit Recall@5':<16} {summary['evidence_unit_recall@5']:<10.2%}")
+    print(f"  {'Group Hit@3':<16} {summary['evidence_group_hit@3']:<10.2%}")
+    print(f"  {'Group Hit@5':<16} {summary['evidence_group_hit@5']:<10.2%}")
+
     # 按意图
     group_data = _group_metrics(details, "intent", second_label)
     if match_method == "exact":
@@ -714,16 +788,31 @@ def print_per_query_details(verbose_data: list[dict], second_label: str) -> None
         second_key = f"{second_label}_summary"
         second_hit = "✓" if v.get(second_key, {}).get("hit@5") else "✗"
 
+        eu_total = v.get("evidence_unit_total", 0)
+        eu_recall = v.get("evidence_unit_recall@5", 0)
+        eu_group = "✓" if v.get("evidence_group_hit@5") else "✗"
+
         print(f"\n── [{i:02d}] {v['id']} | {v['intent']} | "
-              f"exact={exact_hit} {second_label}={second_hit} ──")
+              f"exact={exact_hit} {second_label}={second_hit} | "
+              f"EU_recall@5={eu_recall:.0%} EU_group={eu_group} ──")
         print(f"  查询: {v['query'][:80]}")
         if v.get("expected_docs"):
             print(f"  期望文档: {', '.join(v['expected_docs'])}")
 
         # Evidence 列表
-        print(f"  标准 Evidence ({len(v['evidence'])}条):")
+        print(f"  标准 Evidence ({len(v['evidence'])}条) | Evidence Units: {eu_total}")
         for j, ev in enumerate(v["evidence"]):
             print(f"    [{j}] {ev['quote'][:100]}")
+
+        # Evidence Unit 匹配概况
+        if eu_total > 0:
+            matched = v.get("evidence_unit_matched@5", [])
+            missing = v.get("evidence_unit_missing@5", [])
+            print(f"  Evidence Unit 匹配: {len(matched)}/{eu_total} 命中, {len(missing)} 未命中")
+            if missing:
+                print(f"  未命中 Units (前3):")
+                for mu in missing[:3]:
+                    print(f"    ✗ {mu[:120]}")
 
         # Chunk 匹配情况
         print(f"  检索结果 (Top{len(v['retrieved_chunks'])}):")

@@ -14,6 +14,10 @@ from src.eval_metrics import (
     evidence_hit_at_k,
     evidence_mrr,
     evidence_recall_at_k,
+    get_evidence_units,
+    build_retrieved_context,
+    match_evidence_unit_in_context,
+    compute_evidence_unit_metrics,
     make_exact_matcher,
     make_fuzzy_matcher,
     _lcs_length,
@@ -353,3 +357,216 @@ class TestEvidenceRecallAtK:
 
         recall = evidence_recall_at_k(chunks, evidence, 1, exact_fn)
         assert recall == pytest.approx(0.5)  # 只有1个有效 evidence，命中
+
+
+# ═══════════════════════════════════════════════════════════════
+# get_evidence_units
+# ═══════════════════════════════════════════════════════════════
+
+class TestGetEvidenceUnits:
+    def test_from_evidence_units_field(self):
+        entry = {
+            "evidence_units": ["unit A", "unit B", "unit C"],
+            "evidence": [{"quote": "old evidence"}],
+        }
+        units = get_evidence_units(entry)
+        assert units == ["unit A", "unit B", "unit C"]
+
+    def test_fallback_to_evidence(self):
+        entry = {
+            "evidence": [
+                {"doc": "test.pdf", "section": "s1", "quote": "evidence text 1"},
+                {"doc": "test.pdf", "section": "s2", "quote": "evidence text 2"},
+            ]
+        }
+        units = get_evidence_units(entry)
+        assert units == ["evidence text 1", "evidence text 2"]
+
+    def test_fallback_skips_empty_quotes(self):
+        entry = {
+            "evidence": [
+                {"quote": ""},
+                {"quote": "valid evidence"},
+            ]
+        }
+        units = get_evidence_units(entry)
+        assert units == ["valid evidence"]
+
+    def test_empty_entry(self):
+        assert get_evidence_units({}) == []
+
+    def test_evidence_units_empty_list_uses_fallback(self):
+        """空 evidence_units 列表应该 fallback 到 evidence"""
+        entry = {
+            "evidence_units": [],
+            "evidence": [{"quote": "fallback text"}],
+        }
+        units = get_evidence_units(entry)
+        assert units == ["fallback text"]
+
+
+# ═══════════════════════════════════════════════════════════════
+# build_retrieved_context
+# ═══════════════════════════════════════════════════════════════
+
+class TestBuildRetrievedContext:
+    def test_concatenates_chunks(self):
+        chunks = [
+            {"body_text": "chunk one text"},
+            {"body_text": "chunk two text"},
+            {"text": "chunk three fallback"},
+        ]
+        ctx = build_retrieved_context(chunks, 2)
+        assert "chunk one text" in ctx
+        assert "chunk two text" in ctx
+        assert "chunk three fallback" not in ctx  # k=2
+
+    def test_fallback_to_text_field(self):
+        chunks = [{"text": "only text field"}]
+        ctx = build_retrieved_context(chunks, 1)
+        assert "only text field" in ctx
+
+    def test_empty_chunks(self):
+        assert build_retrieved_context([], 5) == ""
+
+
+# ═══════════════════════════════════════════════════════════════
+# match_evidence_unit_in_context
+# ═══════════════════════════════════════════════════════════════
+
+class TestMatchEvidenceUnitInContext:
+    def test_exact_match_in_context(self):
+        exact_fn = make_exact_matcher()
+        is_match, scores = match_evidence_unit_in_context(
+            "忘记打卡怎么办",
+            "chunk A text.\n未打卡：忘记打卡怎么办？员工须提交说明。\nchunk B text.",
+            exact_fn,
+        )
+        assert is_match is True
+        assert scores["exact_match"] is True
+
+    def test_unit_spans_two_chunks(self):
+        """Evidence unit 跨两个 retrieved chunk 时，拼接后能被命中"""
+        exact_fn = make_exact_matcher()
+        # Simulating a unit that is split across two chunks
+        # (real chunks don't have English filler — just the raw Chinese text)
+        is_match, scores = match_evidence_unit_in_context(
+            "员工须在当月提交未打卡说明",
+            "第二节 考勤制度。未打卡：员工须在当月提交\n未打卡说明，否则视为旷工。员工应遵守考勤制度。",
+            exact_fn,
+        )
+        # After normalization, whitespace is removed, so evidence appears as contiguous substring
+        assert is_match is True
+
+    def test_no_match(self):
+        exact_fn = make_exact_matcher()
+        is_match, _ = match_evidence_unit_in_context(
+            "完全不相关的内容",
+            "chunk A text.\nchunk B text.",
+            exact_fn,
+        )
+        assert is_match is False
+
+    def test_fuzzy_match_in_context(self):
+        fuzzy_fn = make_fuzzy_matcher()
+        # "提出" vs "提交" — fuzzy should still match due to high 3-gram overlap
+        is_match, scores = match_evidence_unit_in_context(
+            "试用期内员工辞职应至少提前三日提出书面离职申请",
+            "第五节 离职。试用期内员工辞职应至少提前三日提交书面离职申请，转正后应至少提前三十日。",
+            fuzzy_fn,
+        )
+        assert is_match is True
+
+    def test_empty_inputs(self):
+        exact_fn = make_exact_matcher()
+        is_match, _ = match_evidence_unit_in_context("", "some context", exact_fn)
+        assert is_match is False
+        is_match, _ = match_evidence_unit_in_context("some unit", "", exact_fn)
+        assert is_match is False
+
+
+# ═══════════════════════════════════════════════════════════════
+# compute_evidence_unit_metrics
+# ═══════════════════════════════════════════════════════════════
+
+class TestComputeEvidenceUnitMetrics:
+    def _make_chunks(self, texts):
+        return [{"body_text": t, "source_file": "test.pdf"} for t in texts]
+
+    def test_all_units_matched(self):
+        chunks = self._make_chunks(["证据A和证据B都在这里"])
+        units = ["证据A", "证据B"]
+        exact_fn = make_exact_matcher()
+
+        result = compute_evidence_unit_metrics(chunks, units, 1, exact_fn)
+        assert result["evidence_unit_total"] == 2
+        assert result["evidence_unit_hit_count"] == 2
+        assert result["evidence_unit_recall"] == 1.0
+        assert result["evidence_group_hit"] is True
+        assert len(result["matched_units"]) == 2
+        assert len(result["missing_units"]) == 0
+
+    def test_partial_units_matched(self):
+        chunks = self._make_chunks(["chunk with 证据A only"])
+        units = ["证据A", "证据B"]
+        exact_fn = make_exact_matcher()
+
+        result = compute_evidence_unit_metrics(chunks, units, 1, exact_fn)
+        assert result["evidence_unit_total"] == 2
+        assert result["evidence_unit_hit_count"] == 1
+        assert result["evidence_unit_recall"] == 0.5
+        assert result["evidence_group_hit"] is True
+        assert result["matched_units"] == ["证据A"]
+        assert result["missing_units"] == ["证据B"]
+
+    def test_no_units_matched(self):
+        chunks = self._make_chunks(["无关内容"])
+        units = ["证据A"]
+        exact_fn = make_exact_matcher()
+
+        result = compute_evidence_unit_metrics(chunks, units, 1, exact_fn)
+        assert result["evidence_unit_recall"] == 0.0
+        assert result["evidence_group_hit"] is False
+
+    def test_empty_units(self):
+        chunks = self._make_chunks(["内容"])
+        exact_fn = make_exact_matcher()
+
+        result = compute_evidence_unit_metrics(chunks, [], 1, exact_fn)
+        assert result["evidence_unit_total"] == 0
+        assert result["evidence_unit_recall"] == 0.0
+
+    def test_unit_across_chunks_with_k(self):
+        """Evidence unit 跨两个 chunk 时，k 足够大才能命中"""
+        chunks = self._make_chunks([
+            "第二节 考勤。未打卡：员工须在当月",
+            "提交未打卡说明，否则视为旷工。",
+        ])
+        units = ["员工须在当月提交未打卡说明"]
+        exact_fn = make_exact_matcher()
+
+        # k=1: only first chunk, can't match (missing "提交未打卡说明")
+        result_k1 = compute_evidence_unit_metrics(chunks, units, 1, exact_fn)
+        assert result_k1["evidence_group_hit"] is False
+
+        # k=2: both chunks concatenated via newline, normalized text matches
+        result_k2 = compute_evidence_unit_metrics(chunks, units, 2, exact_fn)
+        assert result_k2["evidence_group_hit"] is True
+        assert result_k2["evidence_unit_recall"] == 1.0
+
+    def test_old_format_with_evidence_list(self):
+        """旧格式只有 evidence（无 evidence_units）的样本仍能评估"""
+        chunks = self._make_chunks(["包含证据一的文本", "包含证据二的文本"])
+        exact_fn = make_exact_matcher()
+
+        # 模拟旧格式 entry
+        evidence_units = get_evidence_units({
+            "evidence": [
+                {"quote": "证据一"},
+                {"quote": "证据二"},
+            ]
+        })
+        assert evidence_units == ["证据一", "证据二"]
+
+        result = compute_evidence_unit_metrics(chunks, evidence_units, 2, exact_fn)
+        assert result["evidence_unit_recall"] == 1.0
