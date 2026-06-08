@@ -28,10 +28,11 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.config import RAW_PDFS_DIR, PROCESSED_DIR
+from src.config import RAW_DIR, PROCESSED_DIR
 from src.pdf_loader import load_pdfs
 from src.cleaner import clean_pages
-from src.chunker import chunk_pages
+from src.chunker import chunk_pages, chunk_markdown_docs
+from src.md_loader import load_markdown_files
 
 
 def _pages_to_dicts(pages) -> list[dict]:
@@ -104,57 +105,76 @@ def main():
         return 0
 
     print("=" * 60)
-    print("OnboardRAG — PDF → Chunk 切分")
+    print("OnboardRAG — PDF + Markdown → Chunk 切分")
     print("=" * 60)
     if args.pdf:
-        print(f"  指定 PDF: {args.pdf}")
+        print(f"  指定目标文件: {args.pdf}")
 
-    # ── Step 1: PDF 文本提取 ──────────────────────
-    print("\n[1/3] PDF 文本提取...")
-    pages = load_pdfs(RAW_PDFS_DIR, filenames=args.pdf)
-    if not pages:
+    all_chunks: list[dict] = []
+
+    # ── Step 1-3: PDF 处理 ────────────────────────
+    print("\n── PDF 处理 ──")
+    print("[PDF 1/3] 文本提取...")
+    pages = load_pdfs(RAW_DIR, filenames=args.pdf)
+    if pages:
+        sources = sorted(set(p.source_file for p in pages))
+        print(f"  读取了 {len(pages)} 页（来自 {len(sources)} 个 PDF: {', '.join(sources)}）")
+
+        print("[PDF 2/3] 文本清洗...")
+        page_dicts = _pages_to_dicts(pages)
+        page_dicts = clean_pages(page_dicts)
+        print(f"  清洗后剩余 {len(page_dicts)} 页（非空）")
+
+        if page_dicts:
+            print("[PDF 3/3] Chunk 切分 (recursive)...")
+            pdf_chunks = chunk_pages(page_dicts)
+            print(f"  切分为 {len(pdf_chunks)} 个 chunk")
+            if pdf_chunks:
+                sizes = [len(c["text"]) for c in pdf_chunks]
+                print(f"  chunk 大小: 最小={min(sizes)}字, 最大={max(sizes)}字, "
+                      f"平均={sum(sizes)//len(sizes)}字")
+            all_chunks.extend(pdf_chunks)
+        else:
+            print("  清洗后没有有效内容！")
+    else:
         print("  没有找到匹配的 PDF 文件！")
-        return 1
-    sources = sorted(set(p.source_file for p in pages))
-    print(f"  读取了 {len(pages)} 页（来自 {len(sources)} 个 PDF: {', '.join(sources)}）")
 
-    # ── Step 2: 文本清洗 ──────────────────────────
-    print("\n[2/3] 文本清洗...")
-    page_dicts = _pages_to_dicts(pages)
-    page_dicts = clean_pages(page_dicts)
-    print(f"  清洗后剩余 {len(page_dicts)} 页（非空）")
+    # ── Step 4-5: Markdown 处理 ───────────────────
+    print("\n── Markdown 处理 ──")
+    md_docs = load_markdown_files(RAW_DIR)
+    if md_docs:
+        sources = sorted(d["source_file"] for d in md_docs)
+        print(f"  读取了 {len(md_docs)} 个 Markdown 文件: {', '.join(sources)}")
 
-    if not page_dicts:
-        print("  清洗后没有有效内容！")
-        return 1
+        print("  Chunk 切分 (MarkdownHeaderTextSplitter)...")
+        md_chunks = chunk_markdown_docs(md_docs)
+        print(f"  切分为 {len(md_chunks)} 个 chunk")
+        if md_chunks:
+            sizes = [len(c["text"]) for c in md_chunks]
+            print(f"  chunk 大小: 最小={min(sizes)}字, 最大={max(sizes)}字, "
+                  f"平均={sum(sizes)//len(sizes)}字")
+        all_chunks.extend(md_chunks)
+    else:
+        print("  没有找到 Markdown 文件")
 
-    # ── Step 3: Chunk 切分 ────────────────────────
-    print("\n[3/3] Chunk 切分...")
-    chunks = chunk_pages(page_dicts)
-    print(f"  切分为 {len(chunks)} 个 chunk")
-
-    sizes = [len(c["text"]) for c in chunks]
-    if sizes:
-        print(f"  chunk 大小: 最小={min(sizes)}字, 最大={max(sizes)}字, "
-              f"平均={sum(sizes)//len(sizes)}字")
-
-    if not chunks:
-        print("  没有生成任何 chunk！")
+    # ── 汇总 ─────────────────────────────────────
+    if not all_chunks:
+        print("\n没有生成任何 chunk！")
         return 1
 
     # ── 按 source_file 分组，分别保存 ──────────────
     grouped: dict[str, list[dict]] = defaultdict(list)
-    for c in chunks:
+    for c in all_chunks:
         grouped[c["source_file"]].append(c)
 
     print(f"\n{'=' * 60}")
     print("保存 chunk 文件:")
-    for pdf_name, pdf_chunks in grouped.items():
-        path = PROCESSED_DIR / chunk_filename(pdf_name)
-        save_chunks_jsonl(pdf_chunks, path)
-        print(f"  {path.name}  — {len(pdf_chunks)} chunks")
+    for fname, fchunks in grouped.items():
+        path = PROCESSED_DIR / chunk_filename(fname)
+        save_chunks_jsonl(fchunks, path)
+        print(f"  {path.name}  — {len(fchunks)} chunks")
 
-    print(f"\n共 {len(chunks)} 条 chunk，分布到 {len(grouped)} 个文件")
+    print(f"\n共 {len(all_chunks)} 条 chunk，分布到 {len(grouped)} 个文件")
     return 0
 
 

@@ -21,9 +21,15 @@ Chunk 切分模块（v2 — section-aware chunking）。
 import re
 from itertools import groupby
 
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import (
+    RecursiveCharacterTextSplitter,
+    MarkdownHeaderTextSplitter,
+)
 
-from src.config import CHUNK_MIN_SIZE, CHUNK_MAX_SIZE, CHUNK_OVERLAP, CHUNK_METHOD
+from src.config import (
+    CHUNK_MIN_SIZE, CHUNK_MAX_SIZE, CHUNK_OVERLAP, CHUNK_METHOD,
+    MD_HEADERS_TO_SPLIT_ON,
+)
 
 # ═══════════════════════════════════════════════════════════════
 # 常量
@@ -611,5 +617,130 @@ def chunk_pages(pages: list[dict]) -> list[dict]:
                 all_chunks.append(chunk_dict)
 
             global_section_idx += 1
+
+    return all_chunks
+
+
+# ═══════════════════════════════════════════════════════════════
+# 9. Markdown chunk 切分（MarkdownHeaderTextSplitter）
+# ═══════════════════════════════════════════════════════════════
+
+
+def _build_section_title_from_headers(metadata: dict) -> str:
+    """从 MarkdownHeaderTextSplitter 的 metadata 构建 section_title。
+
+    metadata 格式: {"h1": "标题1", "h2": "标题2", "h3": "标题3"}
+    取最细粒度的非空标题作为 section_title，如果都为空则 fallback 到 doc_title。
+    """
+    for level in ("h3", "h2", "h1"):
+        val = metadata.get(level, "")
+        if val and val.strip():
+            return val.strip()
+    return ""
+
+
+def _make_md_chunk(
+    body: str,
+    section_title: str,
+    doc_title: str,
+    source_file: str,
+    category: str,
+    chunk_idx: int,
+) -> dict:
+    """构建与 PDF chunk 一致 schema 的 Markdown chunk 字典。"""
+    return {
+        "chunk_id": f"{category}_md_c{chunk_idx}",
+        "text": _build_embedding_text(body, section_title, doc_title),
+        "body_text": body,
+        "doc_title": doc_title,
+        "section_title": section_title,
+        "page_start": 0,
+        "page_end": 0,
+        "source_file": source_file,
+        "category": category,
+    }
+
+
+def chunk_markdown_docs(md_docs: list[dict]) -> list[dict]:
+    """对 Markdown 文档进行两级结构化切分。
+
+    1. 先用 MarkdownHeaderTextSplitter 按 #/##/### 标题层级粗切
+    2. 超长 section 再用 RecursiveCharacterTextSplitter 细切
+
+    利用 Markdown 的结构化特性保持标题与内容的关联，
+    同时确保每个 chunk 不超过 embedding 模型的 token 限制。
+
+    Args:
+        md_docs: load_markdown_files() 返回的文档字典列表
+                 每个包含 text, source_file, doc_title, category
+
+    Returns:
+        chunk 字典列表，schema 与 chunk_pages() 输出一致
+    """
+    if not md_docs:
+        return []
+
+    # 计算 embedding 前缀开销，确保最终 text 不超出模型限制
+    prefix_overhead = len(_build_embedding_text("", "X" * 30, "X" * 20))
+    effective_chunk_size = max(CHUNK_MIN_SIZE, CHUNK_MAX_SIZE - prefix_overhead)
+
+    all_chunks = []
+
+    for doc in md_docs:
+        doc_title = doc["doc_title"]
+        source_file = doc["source_file"]
+        category = doc["category"]
+
+        # 第一级：按标题层级切分
+        header_splitter = MarkdownHeaderTextSplitter(
+            headers_to_split_on=MD_HEADERS_TO_SPLIT_ON,
+            strip_headers=False,  # 保留标题在正文中
+        )
+        md_sections = header_splitter.split_text(doc["text"])
+
+        # 第二级：超长 section 用 RecursiveCharacterTextSplitter 细切
+        recursive_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=effective_chunk_size,
+            chunk_overlap=CHUNK_OVERLAP,
+            separators=["\n\n", "\n", "。", "；", "，", " ", ""],
+            length_function=len,
+            is_separator_regex=False,
+        )
+
+        for md_sec in md_sections:
+            body = md_sec.page_content.strip()
+            if len(body) < 20:
+                continue
+
+            # 从 metadata 提取 section_title
+            section_title = _build_section_title_from_headers(md_sec.metadata)
+            if not section_title:
+                section_title = doc_title
+
+            # 判断是否需要二次切分
+            if len(body) <= effective_chunk_size:
+                all_chunks.append(_make_md_chunk(
+                    body=body,
+                    section_title=section_title,
+                    doc_title=doc_title,
+                    source_file=source_file,
+                    category=category,
+                    chunk_idx=len(all_chunks),
+                ))
+            else:
+                # 超长 section → 递归切分
+                sub_texts = recursive_splitter.split_text(body)
+                for sub in sub_texts:
+                    sub = sub.strip()
+                    if len(sub) < 20:
+                        continue
+                    all_chunks.append(_make_md_chunk(
+                        body=sub,
+                        section_title=section_title,
+                        doc_title=doc_title,
+                        source_file=source_file,
+                        category=category,
+                        chunk_idx=len(all_chunks),
+                    ))
 
     return all_chunks

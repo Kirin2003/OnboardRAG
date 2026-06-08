@@ -28,7 +28,7 @@ def _resolve_path(raw: str | None, default: Path) -> Path:
 DATA_DIR = _resolve_path(
     os.getenv("ONBOARDRAG_DATA_DIR"), PROJECT_ROOT / "data"
 )
-RAW_PDFS_DIR = DATA_DIR / "raw_pdfs"
+RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 
 # 确保目录存在
@@ -108,7 +108,31 @@ PDF_MAPPING = {
         "doc_title": "VPN使用手册",
         "category": "vpn_manual",
     },
+    "钉钉考勤.pdf": {
+        "doc_title": "钉钉考勤使用说明",
+        "category": "dingtalk_manual",
+    },
 }
+
+# ── Markdown 文档映射 ───────────────────────────────────
+
+MD_MAPPING = {
+    "统一门户账号与安全.md": {
+        "doc_title": "统一门户账号与安全",
+        "category": "account_portal",
+    },
+    "vpn使用和故障排查.md": {
+        "doc_title": "VPN使用与故障排查",
+        "category": "vpn_manual",
+    },
+}
+
+# MarkdownHeaderTextSplitter 拆分的标题层级
+MD_HEADERS_TO_SPLIT_ON = [
+    ("#", "h1"),
+    ("##", "h2"),
+    ("###", "h3"),
+]
 
 
 def get_pdf_config(filename: str) -> dict:
@@ -121,4 +145,17 @@ def get_pdf_config(filename: str) -> dict:
 
     # fallback: 去掉 .pdf 后缀作为 title，category 用拼音缩写
     stem = filename.replace(".pdf", "").replace(".PDF", "")
+    return {"doc_title": stem, "category": stem[:20]}
+
+
+def get_md_config(filename: str) -> dict:
+    """根据 Markdown 文件名获取预设的 doc_title 和 category。
+
+    如果文件名不在映射表中，则从文件名自动推断。
+    """
+    if filename in MD_MAPPING:
+        return MD_MAPPING[filename]
+
+    # fallback: 去掉 .md 后缀作为 title
+    stem = filename.replace(".md", "").replace(".MD", "")
     return {"doc_title": stem, "category": stem[:20]}
