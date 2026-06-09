@@ -34,9 +34,11 @@ from src.config import (
     DENSE_TOP_K,
     BM25_TOP_K,
     RRF_K,
+    RERANK_CANDIDATE_TOP_K,
 )
 from src.embedder import Embedder
 from src.milvus_store import get_client
+from src.reranker import Reranker
 
 
 class Retriever:
@@ -55,6 +57,7 @@ class Retriever:
         self._bm25: BM25Okapi | None = None
         self._bm25_chunks: list[dict] = []
         self._bm25_tokenized: list[list[str]] = []
+        self._reranker = Reranker()
 
     @property
     def embedder(self) -> Embedder:
@@ -250,7 +253,7 @@ class Retriever:
         bm25_top_k: int | None = None,
         mode: str = "hybrid",
     ) -> list[dict]:
-        """执行检索，支持三种模式。
+        """执行检索，支持三种模式。开启 reranker 后会在检索后对候选精排。
 
         Args:
             query: 用户查询文本
@@ -263,7 +266,8 @@ class Retriever:
         Returns:
             chunk 列表，字段包括：
             chunk_id, text, body_text, doc_title, source_file,
-            category, page_start, page_end, score
+            category, page_start, page_end, score,
+            以及 reranker 附加的 rerank_score（当 ENABLE_RERANKER=true 时）
         """
         from src.config import RETRIEVAL_TOP_K
 
@@ -272,22 +276,38 @@ class Retriever:
 
         final_top_k = top_k if top_k is not None else RETRIEVAL_TOP_K
 
+        # reranker 开启时，检索阶段多取一些候选，给精排留出空间
+        rerank_enabled = self._reranker._enabled
+        candidate_k = RERANK_CANDIDATE_TOP_K if rerank_enabled else final_top_k
+
         # ── 仅 BM25 检索 ──
         if mode == "bm25":
             b_top_k = bm25_top_k if bm25_top_k is not None else BM25_TOP_K
-            return self._bm25_search(query, top_k=max(b_top_k, final_top_k))[:final_top_k]
+            results = self._bm25_search(query, top_k=max(b_top_k, candidate_k))
+            if rerank_enabled:
+                results = self._reranker.rerank(query, results[:candidate_k], top_k=final_top_k)
+            return results[:final_top_k]
 
         # ── 仅 Dense 检索 ──
         if mode == "dense":
             d_top_k = dense_top_k if dense_top_k is not None else DENSE_TOP_K
-            return self._dense_search(query, top_k=max(d_top_k, final_top_k))[:final_top_k]
+            results = self._dense_search(query, top_k=max(d_top_k, candidate_k))
+            if rerank_enabled:
+                results = self._reranker.rerank(query, results[:candidate_k], top_k=final_top_k)
+            return results[:final_top_k]
 
-        # ── 混合检索（Dense + BM25 → RRF）──
+        # ── 混合检索（Dense + BM25 → RRF → Rerank）──
         d_top_k = dense_top_k if dense_top_k is not None else DENSE_TOP_K
         b_top_k = bm25_top_k if bm25_top_k is not None else BM25_TOP_K
 
-        dense_chunks = self._dense_search(query, top_k=d_top_k)
-        bm25_chunks = self._bm25_search(query, top_k=b_top_k)
+        dense_chunks = self._dense_search(query, top_k=max(d_top_k, candidate_k))
+        bm25_chunks = self._bm25_search(query, top_k=max(b_top_k, candidate_k))
 
         merged = self._rrf_merge(dense_chunks, bm25_chunks, k=RRF_K)
-        return merged[:final_top_k]
+
+        if rerank_enabled:
+            results = self._reranker.rerank(query, merged[:candidate_k], top_k=final_top_k)
+        else:
+            results = merged[:final_top_k]
+
+        return results

@@ -74,6 +74,9 @@ LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://dashscope.aliyuncs.com/compati
 LLM_API_KEY = os.getenv("LLM_API_KEY", os.getenv("OPENAI_API_KEY", ""))
 LLM_MODEL = os.getenv("LLM_MODEL", "qwen3.6-flash-2026-04-16")
 
+# LLM-as-Judge 评估模型（阿里百炼 glm-5.1）
+JUDGE_MODEL = os.getenv("JUDGE_MODEL", "glm-5.1")
+
 # ── 阶段二：检索参数 ────────────────────────────────────
 
 # 检索模式: "hybrid"（混合检索）、"dense"（仅向量）、"bm25"（仅关键词）
@@ -95,6 +98,16 @@ RRF_K = int(os.getenv("RRF_K", "60"))
 
 ENABLE_RERANKER = os.getenv("ENABLE_RERANKER", "false").lower() == "true"
 RERANKER_MODEL = os.getenv("RERANKER_MODEL", "BAAI/bge-reranker-v2-m3")
+# Rerank 前的候选池大小（应大于 RETRIEVAL_TOP_K，给 reranker 足够的精排空间）
+RERANK_CANDIDATE_TOP_K = int(os.getenv("RERANK_CANDIDATE_TOP_K", "30"))
+
+# ── 阶段二：检索实验（离线评测）参数 ─────────────────────
+
+# 评测用 top_k：统一取 30，后续指标可从 top-30 截断
+EVAL_BM25_TOP_K = int(os.getenv("EVAL_BM25_TOP_K", "30"))
+EVAL_DENSE_TOP_K = int(os.getenv("EVAL_DENSE_TOP_K", "30"))
+EVAL_RRF_K = int(os.getenv("EVAL_RRF_K", "60"))
+EVAL_RERANK_TOP_K = int(os.getenv("EVAL_RERANK_TOP_K", "30"))
 
 # ── PDF 文件名 → (doc_title, category) 映射 ──────────────
 
