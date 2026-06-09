@@ -346,7 +346,8 @@ def compute_error_analysis(
 ) -> dict | None:
     """对单个 answerable query 进行 error analysis。
 
-    只在 reranker 未命中时返回详细信息；若全部命中则返回 None。
+    记录所有与 reranker 相关的成功/失败模式（4 种），
+    仅在 reranker 和 RRF 都命中时跳过（一切正常）。
     """
     evidence_units = get_evidence_units(gold_entry)
     if not evidence_units:
@@ -371,28 +372,28 @@ def compute_error_analysis(
         get_chunks_for_method(query_data, "union_candidate", k=30), evidence_units, match_fn, 30
     )
 
-    # 如果没有 reranker 结果，不生成 error analysis（无法判断 reranker 表现）
+    # 如果没有 reranker 结果，不生成 error analysis
     if not has_rerank:
         return None
 
-    # 如果 reranker 命中了，不产生错误条目
-    if rerank_hit10:
+    # 一切正常：RRF 和 rerank 都命中，不需要记录
+    if rrf_hit10 and rerank_hit10:
         return None
 
-    # 判断错误类型
+    # 判断错误/优化类型（4 种模式全覆盖）
     if not union_hit30:
         error_type = "union_miss"
         error_desc = "union_candidate@30 未命中：一阶段召回失败"
-    elif not rerank_hit10:
-        if rrf_hit10:
-            error_type = "rerank_negative"
-            error_desc = "RRF 命中但 rerank 未命中：reranker 负优化"
-        else:
-            error_type = "rerank_fail"
-            error_desc = "union_candidate@30 命中但 rerank top10 未命中：reranker 排序失败"
-    else:
+    elif rrf_hit10 and not rerank_hit10:
+        error_type = "rerank_negative"
+        error_desc = "RRF 命中但 rerank 未命中：reranker 负优化"
+    elif not rrf_hit10 and rerank_hit10:
         error_type = "rerank_positive"
         error_desc = "RRF 未命中但 rerank 命中：reranker 正优化"
+    else:
+        # !rrf_hit10 && !rerank_hit10 但 union_hit30=True
+        error_type = "rerank_fail"
+        error_desc = "union_candidate@30 命中但 rerank top10 未命中：reranker 排序失败"
 
     return {
         "query_id": gold_entry["id"],

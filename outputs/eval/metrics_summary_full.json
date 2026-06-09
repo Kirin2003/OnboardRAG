@@ -92,6 +92,7 @@
     "total": 26
   },
   "error_summary": {
+    "rerank_positive": 2,
     "rerank_negative": 2
   },
   "match_method": "fuzzy",

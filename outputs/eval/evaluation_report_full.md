@@ -65,7 +65,7 @@
 | union_miss | 0 | union_candidate@30 未命中：一阶段召回失败 |
 | rerank_fail | 0 | union_candidate@30 命中但 rerank top10 未命中 |
 | rerank_negative | 2 | RRF 命中但 rerank 未命中：reranker 负优化 |
-| rerank_positive | 0 | RRF 未命中但 rerank 命中：reranker 正优化 |
+| rerank_positive | 2 | RRF 未命中但 rerank 命中：reranker 正优化 |
 
 ## 按意图分组 (Evidence Group Full Hit@10)
 
