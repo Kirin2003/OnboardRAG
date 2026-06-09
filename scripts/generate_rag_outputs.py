@@ -13,6 +13,14 @@ generate_rag_outputs.py — 批量生成 RAG 输出，供 evaluate_generation.py
 
     # 指定输出路径
     python scripts/generate_rag_outputs.py --output outputs/eval/rag_outputs.jsonl
+
+    # 只生成指定 ID 的 case（逗号分隔）
+    python scripts/generate_rag_outputs.py --ids eval_0001,eval_0005,eval_0010 \\
+        --output outputs/eval/rag_outputs_hard_cases.jsonl
+
+    # 从文件读取要生成的 ID 列表
+    python scripts/generate_rag_outputs.py --id-file data/eval/hard_cases.txt \\
+        --output outputs/eval/rag_outputs_hard_cases.jsonl
 """
 
 import argparse
@@ -66,6 +74,18 @@ def main():
         default=RETRIEVAL_TOP_K,
         help=f"检索返回的 chunk 数量（默认: {RETRIEVAL_TOP_K}）",
     )
+    parser.add_argument(
+        "--ids",
+        type=str,
+        default=None,
+        help="只生成指定 ID 的 case，多个 ID 用逗号分隔（如: eval_0001,eval_0005）",
+    )
+    parser.add_argument(
+        "--id-file",
+        type=str,
+        default=None,
+        help="从文件读取要生成的 ID 列表，每行一个 ID",
+    )
     args = parser.parse_args()
 
     # ── 加载评测数据集 ──
@@ -78,6 +98,24 @@ def main():
         eval_entries = [json.loads(line) for line in f if line.strip()]
 
     print(f"加载评测数据集: {len(eval_entries)} 条样本")
+
+    # ── 按 ID 过滤 ──
+    if args.ids or args.id_file:
+        target_ids = set()
+        if args.ids:
+            target_ids.update(s.strip() for s in args.ids.split(",") if s.strip())
+        if args.id_file:
+            id_file_path = Path(args.id_file)
+            if not id_file_path.exists():
+                print(f"错误: ID 文件不存在: {id_file_path}")
+                return 1
+            with open(id_file_path, "r", encoding="utf-8") as f:
+                target_ids.update(line.strip() for line in f if line.strip())
+        eval_entries = [e for e in eval_entries if e.get("id") in target_ids]
+        missing = target_ids - {e.get("id") for e in eval_entries}
+        if missing:
+            print(f"警告: 以下 ID 在数据集中未找到: {', '.join(sorted(missing))}")
+        print(f"按 ID 过滤后: {len(eval_entries)} 条样本")
 
     if args.limit:
         eval_entries = eval_entries[:args.limit]
