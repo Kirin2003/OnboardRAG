@@ -108,5 +108,13 @@
     30
   ],
   "total_queries": 30,
-  "total_answerable": 26
+  "total_answerable": 26,
+  "config": {
+    "bm25_top_k": 30,
+    "dense_top_k": 30,
+    "rrf_k": 60,
+    "reranker_enabled": true,
+    "reranker_model": "BAAI/bge-reranker-v2-m3",
+    "embedding_model": "BAAI/bge-large-zh-v1.5"
+  }
 }

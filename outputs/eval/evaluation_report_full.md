@@ -4,6 +4,16 @@
 
 **阈值:** 3-gram 包含度=0.75, ROUGE-L=0.65, 部分匹配率=0.85
 
+## 消融方法
+
+| 方法 | 说明 |
+|------|------|
+| BM25 | 纯关键词检索，top-30 |
+| Dense | 纯向量检索 (BAAI/bge-large-zh-v1.5)，top-30 |
+| RRF Hybrid | BM25 top-30 + Dense top-30 → RRF (k=60) 融合 → top-30 |
+| Hybrid + Reranker | BM25 top-30 ∪ Dense top-30 去重 → BAAI/bge-reranker-v2-m3 精排 → top-30 |
+| Union Candidate | BM25 top-30 ∪ Dense top-30 去重，候选池召回上限 |
+
 ## 总体指标
 
 ### Query-level 指标
@@ -57,15 +67,6 @@
 | 🔴 RRF Hybrid Loss (损失) | 2 | 7.7% |
 | 🟢 Reranker Gain (增量) | 2 | 7.7% |
 | 🟠 Reranker Loss (损失) | 2 | 7.7% |
-
-## Error 分析
-
-| 错误类型 | 数量 | 说明 |
-|------|------|------|
-| union_miss | 0 | union_candidate@30 未命中：一阶段召回失败 |
-| rerank_fail | 0 | union_candidate@30 命中但 rerank top10 未命中 |
-| rerank_negative | 2 | RRF 命中但 rerank 未命中：reranker 负优化 |
-| rerank_positive | 2 | RRF 未命中但 rerank 命中：reranker 正优化 |
 
 ## 按意图分组 (Evidence Group Full Hit@10)
 

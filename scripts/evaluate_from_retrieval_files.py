@@ -536,6 +536,26 @@ def write_evaluation_report(
                 f"ROUGE-L={thresholds['rouge_l']}, "
                 f"部分匹配率={thresholds['partial_ratio']}\n\n")
 
+        # 方法说明
+        config = summary.get("config", {})
+        bm_k = config.get("bm25_top_k", 30)
+        dn_k = config.get("dense_top_k", 30)
+        rrf_k = config.get("rrf_k", 60)
+        rerank_model = config.get("reranker_model", "")
+        emb_model = config.get("embedding_model", "")
+        f.write("## 消融方法\n\n")
+        f.write(f"| 方法 | 说明 |\n")
+        f.write(f"|------|------|\n")
+        f.write(f"| BM25 | 纯关键词检索，top-{bm_k} |\n")
+        f.write(f"| Dense | 纯向量检索 ({emb_model})，top-{dn_k} |\n")
+        f.write(f"| RRF Hybrid | BM25 top-{bm_k} + Dense top-{dn_k} → RRF (k={rrf_k}) 融合 → top-30 |\n")
+        if rerank_model:
+            f.write(f"| Hybrid + Reranker | BM25 top-{bm_k} ∪ Dense top-{dn_k} 去重 → {rerank_model} 精排 → top-30 |\n")
+        else:
+            f.write(f"| Hybrid + Reranker | (未运行) |\n")
+        f.write(f"| Union Candidate | BM25 top-{bm_k} ∪ Dense top-{dn_k} 去重，候选池召回上限 |\n")
+        f.write("\n")
+
         # ── 总体指标 ──
         f.write("## 总体指标\n\n")
 
@@ -618,16 +638,6 @@ def write_evaluation_report(
             f.write(f"| 🟠 Reranker Loss (损失) | {ov['rerank_loss']} | {ov['rerank_loss']/total*100:.1f}% |\n")
         else:
             f.write(f"| 🟠 Reranker Loss (损失) | N/A | (未运行) |\n")
-
-        # ── Error 分析 ──
-        f.write("\n## Error 分析\n\n")
-        err = summary.get("error_summary", {})
-        f.write("| 错误类型 | 数量 | 说明 |\n")
-        f.write("|------|------|------|\n")
-        f.write(f"| union_miss | {err.get('union_miss', 0)} | union_candidate@30 未命中：一阶段召回失败 |\n")
-        f.write(f"| rerank_fail | {err.get('rerank_fail', 0)} | union_candidate@30 命中但 rerank top10 未命中 |\n")
-        f.write(f"| rerank_negative | {err.get('rerank_negative', 0)} | RRF 命中但 rerank 未命中：reranker 负优化 |\n")
-        f.write(f"| rerank_positive | {err.get('rerank_positive', 0)} | RRF 未命中但 rerank 命中：reranker 正优化 |\n")
 
         # ── 按意图分组 ──
         f.write("\n## 按意图分组 (Evidence Group Full Hit@10)\n\n")
@@ -878,6 +888,8 @@ def main():
     summary["k_values"] = k_values
     summary["total_queries"] = len(entries)
     summary["total_answerable"] = len(per_query_metrics)
+    # 从检索结果中提取 config（所有行共享同一 config，取第一行即可）
+    summary["config"] = rows[0].get("config", {}) if rows else {}
 
     # ── 输出 ──
     output_dir = PROJECT_ROOT / args.output_dir

@@ -126,6 +126,7 @@ def main():
                 "id": eid,
                 "query": query,
                 "generated_answer": answer,
+                "expected_answer": entry.get("reference_answer", ""),
                 "retrieved_chunks": chunks,
                 "citations": citations,
             }
